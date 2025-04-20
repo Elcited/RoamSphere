@@ -17,8 +17,12 @@ function formatRouteResultRedis(routeDataFromAPI) {
     step => step.navi.action
   );
 
-  const tmcs = routeDataFromAPI.route.paths[0].steps.map(step =>
+  const roadStatus = routeDataFromAPI.route.paths[0].steps.map(step =>
     step.tmcs.map(tmc => tmc.tmc_status)
+  );
+
+  const roadDistance = routeDataFromAPI.route.paths[0].steps.map(step =>
+    step.tmcs.map(tmc => tmc.tmc_distance)
   );
 
   return {
@@ -27,7 +31,8 @@ function formatRouteResultRedis(routeDataFromAPI) {
     cities,
     orientations,
     navigations,
-    tmcs,
+    roadStatus,
+    roadDistance,
   };
 }
 

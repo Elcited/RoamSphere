@@ -7,7 +7,8 @@ export default function parseRouteResult({ polyline, routeDetail }) {
   const cities = polyline.cities.flatMap(city => city);
   const navigations = polyline.navigations;
   const orientations = polyline.orientations;
-  const tmcs = polyline.tmcs;
+  const roadStatus = polyline.roadStatus;
+  const roadDistance = polyline.roadDistance;
 
   const startLocation = routeDetail.start_location;
   const endLocation = routeDetail.end_location;
@@ -50,7 +51,8 @@ export default function parseRouteResult({ polyline, routeDetail }) {
     cities,
     navigations,
     orientations,
-    tmcs,
+    roadStatus,
+    roadDistance,
   };
 
   const parsedRouteDetail = {

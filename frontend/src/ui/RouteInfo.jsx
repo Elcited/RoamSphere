@@ -9,6 +9,12 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import { setIsClickNavigation } from "../features/routeDetail/routeDetailSlice";
+import RouteDirectionIcon from "./RouteDirectionIcon";
+import {
+  calculateTotalRoadDistance,
+  evaluateRoadStatus,
+} from "../utils/routesHelpers";
+import { useState } from "react";
 
 const Container = styled.div`
   padding: 1.2rem;
@@ -26,12 +32,13 @@ const StartToEndBox = styled.div`
 `;
 
 const RouteInfoBody = styled.div`
-  width: 40rem;
+  width: 38rem;
   padding: 1.2rem;
   display: flex;
   flex-direction: column;
   gap: 2.4rem;
 `;
+54;
 
 const DetailBox = styled.div`
   display: grid;
@@ -60,12 +67,23 @@ const NavigationBoxHeader = styled.div`
 
 const NavigationBoxBody = styled.div``;
 
+const AccordionHeader = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AccordionItem = styled.div`
+  padding: 0.9rem;
+`;
+
 function RouteInfo() {
   const dispatch = useDispatch();
   const location = useLocation();
   const { info, strategyList, polyline } = useSelector(
     store => store.routeDetail
   );
+  const [isExpanded, setIsExpanded] = useState(false);
   const {
     startLocation,
     startInfo,
@@ -80,7 +98,13 @@ function RouteInfo() {
     travel_mode,
   } = info;
 
-  const { instructions, navigations, orientations, tmcs } = polyline;
+  const { instructions, navigations, orientations, roadStatus, roadDistance } =
+    polyline;
+
+  const totalRoadDistance = calculateTotalRoadDistance(roadDistance);
+  const status = evaluateRoadStatus(roadStatus);
+
+  console.log(totalRoadDistance, status);
 
   const navigate = useNavigate();
 
@@ -91,6 +115,10 @@ function RouteInfo() {
     navigate(`/map/routes${search}`, {
       state: "fromDetail",
     });
+  };
+
+  const handleChange = panel => (event, newExpanded) => {
+    setIsExpanded(newExpanded ? panel : false);
   };
 
   console.log(info, polyline);
@@ -129,7 +157,31 @@ function RouteInfo() {
             <NavigationBox>
               <NavigationBoxHeader>导航路线</NavigationBoxHeader>
               <NavigationBoxBody>
-                <Accordion>{}</Accordion>
+                {instructions.map((instruction, index) => (
+                  <Accordion
+                    key={`${index}-${instruction}`}
+                    expanded={isExpanded === index}
+                    onChange={handleChange(index)}
+                  >
+                    <AccordionSummary>
+                      <AccordionHeader>
+                        <AccordionItem>
+                          <RouteDirectionIcon
+                            orientation={orientations[index]}
+                          />
+                        </AccordionItem>
+                        <AccordionItem>-</AccordionItem>
+                        <AccordionItem>{instruction}</AccordionItem>
+                      </AccordionHeader>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <AccordionItem>{status[index]}</AccordionItem>
+                      <AccordionItem>
+                        路段总距离:{totalRoadDistance[index]}
+                      </AccordionItem>
+                    </AccordionDetails>
+                  </Accordion>
+                ))}
               </NavigationBoxBody>
             </NavigationBox>
           </CardContent>

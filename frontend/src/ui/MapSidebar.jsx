@@ -41,9 +41,7 @@ function MapSidebar() {
           open={isRoutesDrawerOpen}
           onClose={() => dispatch(setIsRoutesDrawerOpen(false))}
           anchor="left"
-          ModalProps={{
-            hideBackdrop: true,
-          }}
+          variant="persistent"
         >
           <Outlet />
         </Drawer>
