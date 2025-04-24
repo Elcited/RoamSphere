@@ -35,13 +35,16 @@ async function getAttractions(req, res) {
       });
     }
 
-    const { attractionsDataFromAPI } = await fetchPositionsFromAPI([lng, lat]);
+    const { data: attractionsDataFromAPI } = await fetchPositionsFromAPI(
+      [lng, lat],
+      110000
+    );
     const formattedAttractions = formatAttractionResult(attractionsDataFromAPI);
 
     const newAttractions = [];
     for (const attraction of formattedAttractions) {
       const exists = await Attraction.findOne({
-        attraction_id: attraction.attraction_id,
+        position_id: attraction.position_id,
       });
       if (!exists) {
         newAttractions.push(attraction);

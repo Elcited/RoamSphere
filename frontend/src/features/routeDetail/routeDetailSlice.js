@@ -34,6 +34,7 @@ const initialState = {
     },
   ],
   isClickNavigation: false,
+  highlightedSegment: null,
 };
 
 const routeDetailSlice = createSlice({
@@ -65,6 +66,9 @@ const routeDetailSlice = createSlice({
     setIsClickNavigation(state, action) {
       state.isClickNavigation = action.payload;
     },
+    setHighlightedSegment(state, action) {
+      state.highlightedSegment = action.payload;
+    },
   },
 });
 
@@ -77,6 +81,7 @@ export const {
   setInfo,
   setPolyline,
   setIsClickNavigation,
+  setHighlightedSegment,
 } = routeDetailSlice.actions;
 
 export default routeDetailSlice.reducer;

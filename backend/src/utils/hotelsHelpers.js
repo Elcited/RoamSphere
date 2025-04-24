@@ -1,5 +1,5 @@
-function formatAttractionResult(attractionsDataFromAPI) {
-  const pois = attractionsDataFromAPI.pois || [];
+function formatHotelResult(hotelsDataFromAPI) {
+  const pois = hotelsDataFromAPI.pois || [];
 
   return pois.map(poi => {
     const [lng, lat] = poi.location
@@ -49,5 +49,5 @@ function formatAttractionResult(attractionsDataFromAPI) {
 }
 
 module.exports = {
-  formatAttractionResult,
+  formatHotelResult,
 };

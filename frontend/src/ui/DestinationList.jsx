@@ -46,7 +46,7 @@ function DestinationList() {
 
   return (
     <DestinationListContainer id="DestinationList">
-      <DestinationListHeader>热门景点</DestinationListHeader>
+      <DestinationListHeader>探索热门城市的景点</DestinationListHeader>
       <DestinationListBox>
         {imageList.map((src, index) => (
           <DestinationListItem img={src} key={index} />

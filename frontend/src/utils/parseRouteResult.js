@@ -69,5 +69,5 @@ export default function parseRouteResult({ polyline, routeDetail }) {
     endInfo,
   };
 
-  return { polylinesForRenderRoutes, parsedRoutePolyline, parsedRouteDetail };
+  return { parsedRoutePolyline, parsedRouteDetail };
 }

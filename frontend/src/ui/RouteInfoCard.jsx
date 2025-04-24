@@ -7,7 +7,13 @@ import {
   setIsClickNavigation,
   setStrategy,
 } from "../features/routeDetail/routeDetailSlice";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  replace,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const Container = styled.div`
   background-color: #fff;
@@ -21,17 +27,24 @@ const CardContentItem = styled.div`
 `;
 
 function RouteInfoCard({ title, desc, newStrategy }) {
-  const { info } = useSelector(store => store.routeDetail);
+  const { info, strategy } = useSelector(store => store.routeDetail);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  const search = location.search;
+  const { updateQueryAndNavigate } = useQueryUpdater();
 
   const handleChangeStrategy = () => {
     dispatch(setStrategy(newStrategy));
     dispatch(setIsClickNavigation(true));
-    navigate(`/map/routes/route_detail${search}`);
+
+    updateQueryAndNavigate(
+      {
+        strategy: newStrategy,
+      },
+      "/map/routes/route_detail",
+      {
+        replace: true,
+      }
+    );
   };
 
   if (!info) return <div>Loading...</div>;

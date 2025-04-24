@@ -2,7 +2,7 @@ import styled from "styled-components";
 import gsap from "gsap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import HeroFormButton from "./HeroFormButton";
 import {
   setEnd,
@@ -11,6 +11,8 @@ import {
 } from "../features/routeDetail/routeDetailSlice";
 import { setMapMode } from "../features/map/mapSlice";
 import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlice";
+import useQueryUpdater from "../hooks/useQueryUpdater";
+import { setAttractionCenterLocation } from "../features/attractions/attractionSlice";
 
 const StyledForm = styled.form`
   font-family: inherit;
@@ -55,31 +57,41 @@ const userId = "122a3422ssasd";
 
 function HeroForm() {
   const formRef = useRef(null);
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [startInput, setStartInput] = useState("");
+  const [endInput, setEndInput] = useState("");
+
   const dispatch = useDispatch();
-  const { start, end } = useSelector(store => store.routeDetail);
+  const { start, end, strategy } = useSelector(store => store.routeDetail);
+  const { updateQueryAndNavigate } = useQueryUpdater();
 
   const handleStartInput = point => {
-    dispatch(setStart(point));
+    setStartInput(point);
   };
 
   const handleEndInput = point => {
-    dispatch(setEnd(point));
+    setEndInput(point);
   };
 
   const handleClick = userId => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("startPoint", start);
-    newParams.set("endPoint", end);
-
+    dispatch(setStart(startInput));
+    dispatch(setEnd(endInput));
     dispatch(setMapMode("route"));
     dispatch(setStrategy(2));
     dispatch(setIsRoutesDrawerOpen(true));
+    dispatch(setAttractionCenterLocation(end));
 
-    navigate(`map/routes/route_detail?${newParams.toString()}`, {
-      state: "fromHomePage",
-    });
+    updateQueryAndNavigate(
+      {
+        startLocation: startInput,
+        endLocation: endInput,
+        strategy: 2,
+        mapmode: "route",
+      },
+      "/map/routes/route_detail",
+      {
+        state: "fromHomePage",
+      }
+    );
   };
 
   useEffect(() => {
@@ -98,7 +110,7 @@ function HeroForm() {
           name="start-point"
           id="start"
           placeholder="起点"
-          value={start}
+          value={startInput}
           onChange={e => handleStartInput(e.target.value)}
         />
       </FormRow>
@@ -109,7 +121,7 @@ function HeroForm() {
           name="end-point"
           id="end"
           placeholder="终点"
-          value={end}
+          value={endInput}
           onChange={e => handleEndInput(e.target.value)}
         />
       </FormRow>

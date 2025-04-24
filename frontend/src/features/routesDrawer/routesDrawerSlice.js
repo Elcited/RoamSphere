@@ -10,6 +10,7 @@ const routesDrawerSlice = createSlice({
   reducers: {
     setIsRoutesDrawerOpen(state, action) {
       state.isRoutesDrawerOpen = action.payload;
+      console.log("isRoutesDrawerOpen", state.isRoutesDrawerOpen);
     },
   },
 });

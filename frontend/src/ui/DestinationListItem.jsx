@@ -2,6 +2,10 @@ import { useRef } from "react";
 import styled from "styled-components";
 import { gsap } from "gsap";
 
+const ImgBox = styled.div`
+  padding: 0.9rem;
+`;
+
 const StyledImg = styled.img`
   width: 100%;
   height: 100%;
@@ -45,7 +49,9 @@ function DestinationListItem({ img }) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <StyledImg src={img} alt="Destination" ref={imgRef} />
+      <ImgBox>
+        <StyledImg src={img} alt="Destination" ref={imgRef} />
+      </ImgBox>
     </StyledDestinationListItem>
   );
 }

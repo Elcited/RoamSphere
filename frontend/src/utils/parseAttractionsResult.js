@@ -1,9 +1,7 @@
 export default function parseAttractionsResult(attractionsList) {
-  console.log(attractionsList);
-
   const parsedAttractionResult = attractionsList.map(attraction => {
     return {
-      attraction_id: attraction.attraction_id,
+      position_id: attraction.position_id,
       name: attraction.name,
       address: attraction.address,
       location: attraction.location,

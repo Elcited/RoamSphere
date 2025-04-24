@@ -31,6 +31,8 @@ function PlaceDetails() {
     setPage(value);
   };
 
+  if (!attractionsArray || !attractionsCount) return <div>Loading...</div>;
+
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentItems = attractionsArray.slice(startIndex, endIndex);
@@ -42,7 +44,7 @@ function PlaceDetails() {
       <CardsContainer>
         {currentItems.map(attraction => (
           <PlaceDetailCard
-            key={attraction.attraction_id}
+            key={attraction.position_id}
             attraction={attraction}
           />
         ))}

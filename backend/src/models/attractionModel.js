@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const attractionSchema = new Schema({
-  attraction_id: { type: String, required: true },
+  position_id: { type: String, required: true },
   name: { type: String, required: true },
   address: { type: String },
   location: {

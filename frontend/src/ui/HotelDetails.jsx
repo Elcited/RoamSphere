@@ -1,5 +1,5 @@
 function HotelDetails() {
-  return <div></div>;
+  return <div>...HotelDetails...</div>;
 }
 
 export default HotelDetails;

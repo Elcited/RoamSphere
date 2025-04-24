@@ -29,6 +29,7 @@ function App() {
               </Route>
               <Route path="attractions" element={<PlaceDetails />} />
               <Route path="hotels" element={<HotelDetails />} />
+              <Route path="positions" element={<PlaceDetails />} />
               <Route path="custom" element={<RoutePlanner />} />
             </Route>
             <Route path="*" element={<Error />} />

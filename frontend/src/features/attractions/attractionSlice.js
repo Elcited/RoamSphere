@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  attractionCenterLocation: null,
   attractionsArray: null,
   attractionsCount: null,
   singleAttraction: null,
@@ -12,6 +13,9 @@ const attractionSlice = createSlice({
   name: "attraction",
   initialState,
   reducers: {
+    setAttractionCenterLocation(state, action) {
+      state.attractionCenterLocation = action.payload;
+    },
     setAttractionsArray(state, action) {
       state.attractionsArray = action.payload;
       state.attractionsCount = action.payload.length;
@@ -26,6 +30,10 @@ const attractionSlice = createSlice({
   },
 });
 
-export const { setAttractionsArray, setIsSelected } = attractionSlice.actions;
+export const {
+  setAttractionCenterLocation,
+  setAttractionsArray,
+  setIsSelected,
+} = attractionSlice.actions;
 
 export default attractionSlice.reducer;

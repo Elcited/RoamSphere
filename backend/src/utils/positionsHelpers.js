@@ -1,5 +1,5 @@
-function formatAttractionResult(attractionsDataFromAPI) {
-  const pois = attractionsDataFromAPI.pois || [];
+function formatPositionResult(positionsDataFromAPI) {
+  const pois = positionsDataFromAPI.pois || [];
 
   return pois.map(poi => {
     const [lng, lat] = poi.location
@@ -28,8 +28,8 @@ function formatAttractionResult(attractionsDataFromAPI) {
         keytag: poi.business?.keytag,
         rating: poi.business?.rating,
         business_area: poi.business?.business_area,
-        opentime_today: poi.business?.opentime_today && "全天开放",
-        opentime_week: poi.business?.opentime_week && "全天开放",
+        opentime_today: poi.business?.opentime_today,
+        opentime_week: poi.business?.opentime_week,
         rectag: poi.business?.rectag,
         tel: poi.business?.tel,
         cost: poi.business?.cost,
@@ -49,5 +49,5 @@ function formatAttractionResult(attractionsDataFromAPI) {
 }
 
 module.exports = {
-  formatAttractionResult,
+  formatPositionResult,
 };

@@ -2,20 +2,31 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import RoutesDetailHeader from "./RoutesDetailHeader";
 import RouteInfoCard from "./RouteInfoCard";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 import { Outlet, useLocation } from "react-router-dom";
+import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlice";
 
 const Container = styled.div`
   width: 100%;
   padding: 1.2rem 0rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 1.6rem;
+`;
+
+const CloseButtonBox = styled.div`
+  padding: 0.9rem;
+  display: flex;
+  justify-content: flex-end;
 `;
 
 const OtherTrafficOptsBox = styled.div`
   padding: 1.2rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1.2rem;
 `;
 
@@ -47,16 +58,16 @@ function RoutesDetail() {
 
   return (
     <Container>
+      <CloseButtonBox>
+        <IconButton onClick={() => dispatch(setIsRoutesDrawerOpen(false))}>
+          <CloseIcon fontSize="large" />
+        </IconButton>
+      </CloseButtonBox>
       {location.state === "fromHomePage" || isClickNavigation ? (
         <Outlet />
       ) : (
         <>
           <RoutesDetailHeader />
-          <OtherTrafficOptsBox>
-            <OtherTrafficOption>公交车</OtherTrafficOption>
-            <OtherTrafficOption>步行</OtherTrafficOption>
-            <OtherTrafficOption>骑行</OtherTrafficOption>
-          </OtherTrafficOptsBox>
 
           <RoutesInfoBox>
             <h3>路线推荐</h3>
@@ -69,6 +80,12 @@ function RoutesDetail() {
               />
             ))}
           </RoutesInfoBox>
+
+          <OtherTrafficOptsBox>
+            <OtherTrafficOption>公交车</OtherTrafficOption>
+            <OtherTrafficOption>步行</OtherTrafficOption>
+            <OtherTrafficOption>骑行</OtherTrafficOption>
+          </OtherTrafficOptsBox>
         </>
       )}
     </Container>

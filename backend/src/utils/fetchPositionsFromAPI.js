@@ -1,31 +1,48 @@
 const API_REQUEST_KEY = process.env.API_REQUEST_KEY;
 
-async function fetchAttractionsFromAPI(lnglat) {
+async function fetchPositionsFromAPI(
+  geo = "",
+  lnglat = [],
+  type = "",
+  keyword,
+  region = "",
+  radius = 10000
+) {
   try {
-    const res = await fetch(
-      `https://restapi.amap.com/v5/place/around?location=${lnglat[0]},${
-        lnglat[1]
-      }&radius=10000&types=${110200}&show_fields=business,indoor,navi,photos,children&key=${API_REQUEST_KEY}`
-    );
+    let url;
+    console.log("fetchPositionsFromAPI", lnglat, type, keyword, radius);
+    console.log("lnglat:", lnglat);
+    console.log("type:", type);
+    console.log("keyword:", keyword);
+    console.log("region:", region);
+    console.log("radius:", radius);
 
-    if (!res.ok) throw new Error(`高德请求地点时出错! ${res.status}`);
-
-    const attractionsDataFromAPI = await res.json();
-
-    if (
-      attractionsDataFromAPI.status !== "1" ||
-      !attractionsDataFromAPI?.pois?.length
-    ) {
-      throw new Error(
-        `高德返回无效：${attractionsDataFromAPI.info || "未知错误"}`
-      );
+    if (lnglat?.length === 2) {
+      const [lng, lat] = lnglat;
+      url = `https://restapi.amap.com/v5/place/around?location=${lng},${lat}&radius=${radius}&types=${type}&show_fields=business,indoor,navi,photos,children&key=${API_REQUEST_KEY}`;
+    } else if (keyword && region) {
+      url = `https://restapi.amap.com/v5/place/text?keywords=${encodeURIComponent(
+        keyword
+      )}&region=${encodeURIComponent(
+        region
+      )}&show_fields=business,indoor,navi,photos,children&key=${API_REQUEST_KEY}`;
+    } else {
+      throw new Error("必须提供 location 或 keyword 之一");
     }
 
-    return { attractionsDataFromAPI };
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`请求失败: ${res.status} ${res.statusText}`);
+
+    const data = await res.json();
+    if (data.status !== "1" || !Array.isArray(data.pois)) {
+      throw new Error(`高德返回异常: ${data.info || "未知错误"}`);
+    }
+
+    return { data };
   } catch (err) {
-    console.error("fetchRoutesFromAPI error:", err);
+    console.error("fetchPositionsFromAPI error:", err);
     throw err;
   }
 }
 
-module.exports = fetchAttractionsFromAPI;
+module.exports = fetchPositionsFromAPI;

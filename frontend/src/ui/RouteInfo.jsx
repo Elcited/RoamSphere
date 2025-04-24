@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Card from "@mui/material/Card";
@@ -8,17 +8,20 @@ import CardContent from "@mui/material/CardContent";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
-import { setIsClickNavigation } from "../features/routeDetail/routeDetailSlice";
+import {
+  setHighlightedSegment,
+  setIsClickNavigation,
+} from "../features/routeDetail/routeDetailSlice";
 import RouteDirectionIcon from "./RouteDirectionIcon";
 import {
   calculateTotalRoadDistance,
   evaluateRoadStatus,
 } from "../utils/routesHelpers";
 import { useState } from "react";
+import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const Container = styled.div`
   padding: 1.2rem;
-  overflow-y: scroll;
 `;
 
 const RouteInfoHeader = styled.div`
@@ -38,7 +41,6 @@ const RouteInfoBody = styled.div`
   flex-direction: column;
   gap: 2.4rem;
 `;
-54;
 
 const DetailBox = styled.div`
   display: grid;
@@ -98,23 +100,37 @@ function RouteInfo() {
     travel_mode,
   } = info;
 
-  const { instructions, navigations, orientations, roadStatus, roadDistance } =
-    polyline;
+  const {
+    instructions,
+    navigations,
+    orientations,
+    roadStatus,
+    roadDistance,
+    polylinesForRenderDetails,
+  } = polyline;
 
   const totalRoadDistance = calculateTotalRoadDistance(roadDistance);
   const status = evaluateRoadStatus(roadStatus);
 
-  console.log(totalRoadDistance, status);
-
-  const navigate = useNavigate();
-
-  const search = location.search;
+  const { updateQueryAndNavigate } = useQueryUpdater();
 
   const handleGoBack = () => {
     dispatch(setIsClickNavigation(false));
-    navigate(`/map/routes${search}`, {
-      state: "fromDetail",
-    });
+
+    updateQueryAndNavigate(
+      {
+        strategy: null,
+      },
+      "/map/routes",
+      {
+        replace: true,
+      }
+    );
+  };
+
+  const handleClick = highlightedSegment => {
+    console.log(highlightedSegment);
+    dispatch(setHighlightedSegment(highlightedSegment));
   };
 
   const handleChange = panel => (event, newExpanded) => {
@@ -162,6 +178,9 @@ function RouteInfo() {
                     key={`${index}-${instruction}`}
                     expanded={isExpanded === index}
                     onChange={handleChange(index)}
+                    onClick={() =>
+                      handleClick(polylinesForRenderDetails[index])
+                    }
                   >
                     <AccordionSummary>
                       <AccordionHeader>

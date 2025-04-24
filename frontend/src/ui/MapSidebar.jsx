@@ -21,6 +21,7 @@ const Siderbar = styled.div`
 
 function MapSidebar() {
   const location = useLocation();
+  const isRoutesPage = location.pathname.includes("/map/routes");
   const dispatch = useDispatch();
   const { isRoutesDrawerOpen } = useSelector(store => store.routesDrawer);
 
@@ -37,13 +38,8 @@ function MapSidebar() {
         <Button onClick={() => dispatch(setIsRoutesDrawerOpen(true))}>
           路线详情
         </Button>
-        <Drawer
-          open={isRoutesDrawerOpen}
-          onClose={() => dispatch(setIsRoutesDrawerOpen(false))}
-          anchor="left"
-          variant="persistent"
-        >
-          <Outlet />
+        <Drawer open={isRoutesDrawerOpen} anchor="left" variant="persistent">
+          {isRoutesPage && <Outlet />}
         </Drawer>
       </Siderbar>
     </SidebarContainer>
