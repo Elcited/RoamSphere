@@ -8,8 +8,14 @@ import {
   setEnd,
   setStart,
   setStrategy,
+  setTravelMode,
 } from "../features/routeDetail/routeDetailSlice";
-import { setMapMode } from "../features/map/mapSlice";
+import {
+  setCurrentCenterLocation,
+  setHasRouteEnd,
+  setMapMode,
+  setUseEndAsCenter,
+} from "../features/map/mapSlice";
 import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlice";
 import useQueryUpdater from "../hooks/useQueryUpdater";
 import { setAttractionCenterLocation } from "../features/attractions/attractionSlice";
@@ -75,10 +81,13 @@ function HeroForm() {
   const handleClick = userId => {
     dispatch(setStart(startInput));
     dispatch(setEnd(endInput));
+    dispatch(setCurrentCenterLocation(endInput));
+    dispatch(setUseEndAsCenter(true));
+    dispatch(setHasRouteEnd(true));
     dispatch(setMapMode("route"));
+    dispatch(setTravelMode("driving"));
     dispatch(setStrategy(2));
     dispatch(setIsRoutesDrawerOpen(true));
-    dispatch(setAttractionCenterLocation(end));
 
     updateQueryAndNavigate(
       {
@@ -86,8 +95,9 @@ function HeroForm() {
         endLocation: endInput,
         strategy: 2,
         mapmode: "route",
+        travelMode: "driving",
       },
-      "/map/routes/route_detail",
+      "/map/routes/route_overview/route_detail",
       {
         state: "fromHomePage",
       }

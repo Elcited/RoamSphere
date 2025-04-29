@@ -8,9 +8,10 @@ import MainMap from "./pages/MainMap";
 import Error from "./pages/Error";
 import RoutePlanner from "./ui/RoutePlanner";
 import PlaceDetails from "./ui/PlaceDetails";
-import HotelDetails from "./ui/HotelDetails";
 import RoutesDetail from "./ui/RoutesDetail";
 import RouteInfo from "./ui/RouteInfo";
+import RouteSearcher from "./ui/RouteSearcher";
+import RouteOverview from "./ui/RouteOverview";
 
 const queryClient = new QueryClient();
 
@@ -25,10 +26,13 @@ function App() {
             <Route path="profile" element={<UserCenter />} />
             <Route path="map" element={<MainMap />}>
               <Route path="routes" element={<RoutesDetail />}>
-                <Route path="route_detail" element={<RouteInfo />} />
+                <Route path="route_overview" element={<RouteOverview />}>
+                  <Route path="route_detail" element={<RouteInfo />} />
+                </Route>
+                <Route path="route_search" element={<RouteSearcher />} />
               </Route>
               <Route path="attractions" element={<PlaceDetails />} />
-              <Route path="hotels" element={<HotelDetails />} />
+              <Route path="hotels" element={<PlaceDetails />} />
               <Route path="positions" element={<PlaceDetails />} />
               <Route path="custom" element={<RoutePlanner />} />
             </Route>

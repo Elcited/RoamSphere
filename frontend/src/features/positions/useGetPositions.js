@@ -10,9 +10,6 @@ export default function useGetPositions(
   map
 ) {
   const radius = 10000;
-  console.log("positionType", positionType);
-  console.log("positionKeyWord", positionKeyWord);
-  console.log("positionCenterLocation", positionCoordinate);
 
   return useQuery({
     queryKey: [

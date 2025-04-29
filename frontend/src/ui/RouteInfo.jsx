@@ -98,7 +98,7 @@ function RouteInfo() {
     totalTolls,
     trafficLights,
     travel_mode,
-  } = info;
+  } = info || {};
 
   const {
     instructions,
@@ -107,7 +107,7 @@ function RouteInfo() {
     roadStatus,
     roadDistance,
     polylinesForRenderDetails,
-  } = polyline;
+  } = polyline || {};
 
   const totalRoadDistance = calculateTotalRoadDistance(roadDistance);
   const status = evaluateRoadStatus(roadStatus);
@@ -121,7 +121,7 @@ function RouteInfo() {
       {
         strategy: null,
       },
-      "/map/routes",
+      "/map/routes/route_overview",
       {
         replace: true,
       }
@@ -137,8 +137,6 @@ function RouteInfo() {
     setIsExpanded(newExpanded ? panel : false);
   };
 
-  console.log(info, polyline);
-
   if (!info && !!polyline) return <div>Loading...</div>;
 
   return (
@@ -148,7 +146,7 @@ function RouteInfo() {
           <ArrowBackIcon fontSize="large" />
         </IconButton>
         <StartToEndBox>
-          {startLocation.name} {endLocation.name}
+          {startLocation?.name} {endLocation?.name}
         </StartToEndBox>
       </RouteInfoHeader>
 
@@ -173,7 +171,7 @@ function RouteInfo() {
             <NavigationBox>
               <NavigationBoxHeader>导航路线</NavigationBoxHeader>
               <NavigationBoxBody>
-                {instructions.map((instruction, index) => (
+                {instructions?.map((instruction, index) => (
                   <Accordion
                     key={`${index}-${instruction}`}
                     expanded={isExpanded === index}

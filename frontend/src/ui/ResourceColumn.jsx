@@ -1,14 +1,6 @@
 import styled from "styled-components";
 import ResourceBodyItem from "./ResourceBodyItem";
 
-// const StyledColumn = styled.div`
-//   display: grid;
-//   grid-template-columns: 1fr 2fr;
-//   grid-template-rows: 1fr;
-//   justify-items: center;
-//   align-items: start;
-// `;
-
 const StyledColumn = styled.div`
   display: flex;
   gap: 1.2rem;

@@ -12,11 +12,14 @@ const PanelWrapper = styled.div`
   position: absolute;
   top: 0.75rem;
   left: 8rem;
+  width: 30vw;
   background-color: white;
   border-radius: 1rem;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
   padding: 1.2rem;
   z-index: 20;
+  max-height: calc(100vh - 3.2rem);
+  overflow-y: scroll;
 `;
 
 const InputBox = styled.div`
@@ -27,7 +30,7 @@ const InputBox = styled.div`
   gap: 1.2rem;
 `;
 
-function SearchPanel({ children }) {
+function MapSearchPanel({ children }) {
   const { isSearchPanelExpand } = useSelector(store => store.map);
   const dispatch = useDispatch();
 
@@ -67,4 +70,4 @@ function SearchPanel({ children }) {
   );
 }
 
-export default SearchPanel;
+export default MapSearchPanel;

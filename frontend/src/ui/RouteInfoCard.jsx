@@ -7,12 +7,6 @@ import {
   setIsClickNavigation,
   setStrategy,
 } from "../features/routeDetail/routeDetailSlice";
-import {
-  replace,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
 import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const Container = styled.div`
@@ -40,7 +34,7 @@ function RouteInfoCard({ title, desc, newStrategy }) {
       {
         strategy: newStrategy,
       },
-      "/map/routes/route_detail",
+      "/map/routes/route_overview/route_detail",
       {
         replace: true,
       }
@@ -53,7 +47,6 @@ function RouteInfoCard({ title, desc, newStrategy }) {
     <Container>
       <Card>
         <CardContent>
-          <h3></h3>
           <CardContentItem>{title}</CardContentItem>
           <CardContentItem>{desc}</CardContentItem>
           <Button onClick={handleChangeStrategy}>开始导航</Button>

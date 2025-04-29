@@ -9,7 +9,7 @@ export default function useGetAttractions(
   const radius = 10000;
 
   return useQuery({
-    queryKey: ["attractions", attractionCoordinate, mapMode],
+    queryKey: ["attractions", attractionCoordinate],
     queryFn: async () => {
       const res = await fetch(
         `/api/attractions/get_attractions?location=${attractionCoordinate[0]},${attractionCoordinate[1]}&radius=${radius}`

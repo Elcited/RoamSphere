@@ -3,22 +3,19 @@ import CommentItem from "./CommentItem";
 import TextField from "@mui/material/TextField";
 
 const Container = styled.div`
-  width: 60rem;
+  width: 30vw;
   display: flex;
   flex-direction: column;
-  gap: 2.4rem;
   padding: 0.9rem;
 `;
 
 const CommentListHeader = styled.div`
   padding: 1.2rem;
-  margin-bottom: 1.2rem;
 `;
 
 const CommentListBody = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
 `;
 
 const CommentListBodyHeader = styled.div`

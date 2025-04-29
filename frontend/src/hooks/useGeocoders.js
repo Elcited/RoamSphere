@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-export default function useGeocoder(AMap, start, end, isSuccess) {
+export default function useGeocoders(AMap, start, end, isSuccess) {
   const [startLocation, setStartLocation] = useState(null);
   const [endLocation, setEndLocation] = useState(null);
 

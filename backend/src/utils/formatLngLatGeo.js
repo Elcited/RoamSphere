@@ -1,25 +1,35 @@
 const API_REQUEST_KEY = process.env.API_REQUEST_KEY;
 
-async function formatLngLatGeo(startLng, startLat, endLng, endLat) {
+const fetchGeoData = async (lng, lat) => {
   try {
-    const [res1, res2] = await Promise.all([
-      fetch(
-        `https://restapi.amap.com/v3/geocode/regeo?location=${startLng},${startLat}&key=${API_REQUEST_KEY}`
-      ),
-      fetch(
-        `https://restapi.amap.com/v3/geocode/regeo?location=${endLng},${endLat}&key=${API_REQUEST_KEY}`
-      ),
+    const response = await fetch(
+      `https://restapi.amap.com/v3/geocode/regeo?location=${lng},${lat}&key=${API_REQUEST_KEY}`
+    );
+    if (!response.ok) {
+      throw new Error(`高德API请求失败，状态码: ${response.status}`);
+    }
+    const data = await response.json();
+    if (!data || data.status !== "1") {
+      throw new Error("高德API返回无效数据");
+    }
+    return data;
+  } catch (error) {
+    throw new Error(`经纬度转地址出错: ${error.message}`);
+  }
+};
+
+const formatLngLatGeo = async (startLng, startLat, endLng, endLat) => {
+  try {
+    const [startInfo, endInfo] = await Promise.all([
+      fetchGeoData(startLng, startLat),
+      fetchGeoData(endLng, endLat),
     ]);
 
-    if (!res1.ok || !res2.ok) throw new Error("经纬度转地址失败！");
-
-    const startInfo = await res1.json();
-    const endInfo = await res2.json();
-
     return { startInfo, endInfo };
-  } catch (e) {
+  } catch (error) {
+    console.error(error.message);
     throw new Error("经纬度转地址出错了！");
   }
-}
+};
 
 module.exports = formatLngLatGeo;

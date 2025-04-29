@@ -10,6 +10,7 @@ const initialState = {
   loading: false,
   error: null,
   source: null,
+  isPositionRendered: false,
 };
 
 const positionSlice = createSlice({
@@ -45,6 +46,9 @@ const positionSlice = createSlice({
     setSource(state, action) {
       state.source = action.payload;
     },
+    setIsPositionRendered(state, action) {
+      state.isPositionRendered = action.payload;
+    },
   },
 });
 
@@ -57,6 +61,7 @@ export const {
   setPositionRegion,
   setError,
   setLoading,
+  setIsPositionRendered,
 } = positionSlice.actions;
 
 export default positionSlice.reducer;

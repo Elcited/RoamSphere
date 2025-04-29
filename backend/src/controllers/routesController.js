@@ -1,10 +1,12 @@
 const Route = require("../models/routeModel");
 const redisClient = require("../utils/redisClient");
-const generateRouteHash = require("../utils/generateRouteHash");
-const fetchRoutesFromAPI = require("../utils/fetchRoutesFromAPI");
-const formatRouteResultDB = require("../utils/formatRouteResultDB");
-const formatRouteResultRedis = require("../utils/formatRouteResultRedis");
+const {
+  generateRouteHash,
+  fetchRoutesFromAPI,
+} = require("../utils/routesHelpers");
 const formatLngLatGeo = require("../utils/formatLngLatGeo");
+const getRouteDataByMode = require("../utils/getRouteDataByMode");
+const normalizeTransitRouteDetail = require("../utils/normalizeTransitRouteDetail");
 
 const getRoutes = async (req, res) => {
   const {
@@ -31,16 +33,11 @@ const getRoutes = async (req, res) => {
     endLat,
   });
 
-  console.log(route_hash);
-
   try {
-    // 1. 先查 Redis（polyline）
     const polylineFromRedis = await redisClient.get(`route:${route_hash}`);
 
-    // 2. 查 MongoDB（简要信息）
     const routeDetailFromDB = await Route.findOne({ route_hash });
 
-    // 如果都存在，直接返回
     if (polylineFromRedis && routeDetailFromDB) {
       return res.json({
         polyline: JSON.parse(polylineFromRedis),
@@ -49,16 +46,6 @@ const getRoutes = async (req, res) => {
       });
     }
 
-    // 3. 不存在就从高德拉
-    const { routeDataFromAPI } = await fetchRoutesFromAPI(
-      strategy,
-      mode,
-      startLng,
-      startLat,
-      endLng,
-      endLat
-    );
-
     const { startInfo, endInfo } = await formatLngLatGeo(
       startLng,
       startLat,
@@ -66,32 +53,67 @@ const getRoutes = async (req, res) => {
       endLat
     );
 
-    const routeDetail = formatRouteResultDB(
-      routeDataFromAPI,
+    const { routeDataFromAPI } = await fetchRoutesFromAPI(
+      strategy,
       mode,
+      startLng,
+      startLat,
+      endLng,
+      endLat,
+      startInfo,
+      endInfo
+    );
+
+    const { routeDetail, polyline } = getRouteDataByMode(
+      mode,
+      routeDataFromAPI,
       startName,
       endName,
       startInfo,
       endInfo
     );
 
-    const polyline = formatRouteResultRedis(routeDataFromAPI);
+    res.json({ route_hash, polyline, routeDetail, cached: false });
 
-    await redisClient.setEx(
-      `route:${route_hash}`,
-      3600,
-      JSON.stringify(polyline)
-    ); // 缓存1小时
-    await Route.create({ ...routeDetail, route_hash, source: "api" });
-
-    // 5. 返回给前端
-    res.json({ polyline, routeDetail, cached: false });
+    saveRoutes({ route_hash, routeDetail, polyline, mode });
   } catch (error) {
     console.error("路线获取失败", error);
     res.status(500).json({ message: "路线查询出错" });
   }
 };
 
+const saveRoutes = async ({ route_hash, routeDetail, polyline, mode }) => {
+  try {
+    if (!route_hash || !routeDetail || !polyline) {
+      console.warn("缺少存储路线的数据，跳过保存");
+      return;
+    }
+
+    let normalizedRouteDetail = routeDetail;
+
+    if (mode === "transit") {
+      normalizedRouteDetail = normalizeTransitRouteDetail(routeDetail);
+    }
+
+    await redisClient.setEx(
+      `route:${route_hash}`,
+      3600,
+      JSON.stringify(polyline)
+    );
+
+    await Route.create({
+      ...normalizedRouteDetail,
+      route_hash,
+      source: "api",
+    });
+
+    console.log(`路线 ${route_hash} 存储成功`);
+  } catch (error) {
+    console.error("保存路线失败", error);
+  }
+};
+
 module.exports = {
   getRoutes,
+  saveRoutes,
 };

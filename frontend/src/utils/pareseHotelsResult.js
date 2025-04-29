@@ -1,5 +1,5 @@
 export default function parseHotelsResult(hotelsList) {
-  const parsedHotelResult = hotelsList.map(hotel => {
+  const parsedHotelResult = hotelsList?.map(hotel => {
     return {
       position_id: hotel.position_id,
       name: hotel.name,

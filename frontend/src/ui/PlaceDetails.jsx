@@ -3,27 +3,34 @@ import styled from "styled-components";
 import { useSelector } from "react-redux";
 import Pagination from "@mui/material/Pagination";
 import PlaceDetailCard from "./PlaceDetailCard";
+import { useLocation } from "react-router-dom";
 
 const Container = styled.div`
-  padding: 0.9rem;
+  max-width: 100%;
+  padding-top: 0.9rem;
   background-color: #fff;
 `;
 
-const DetailHeader = styled.div`
-  font-size: 2.4rem;
-  font-weight: 500;
-`;
-
-const CardsContainer = styled.div`
-  /* box-shadow: ; */
-`;
+const CardsContainer = styled.div``;
 
 const ITEMS_PER_PAGE = 5;
 
 function PlaceDetails() {
-  const { attractionsCount, attractionsArray } = useSelector(
-    store => store.attraction
-  );
+  let dataArray = null;
+  const { attractionsArray } = useSelector(store => store.attraction);
+  const { hotelsArray } = useSelector(store => store.hotel);
+  const { positionsArray } = useSelector(store => store.position);
+
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  if (pathname.includes("/attractions")) {
+    dataArray = attractionsArray;
+  } else if (pathname.includes("/hotels")) {
+    dataArray = hotelsArray;
+  } else if (pathname.includes("/positions")) {
+    dataArray = positionsArray;
+  }
 
   const [page, setPage] = useState(1);
 
@@ -31,22 +38,18 @@ function PlaceDetails() {
     setPage(value);
   };
 
-  if (!attractionsArray || !attractionsCount) return <div>Loading...</div>;
+  if (!dataArray) return <div>Data is Loading...</div>;
 
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = attractionsArray.slice(startIndex, endIndex);
-  const pageCount = Math.ceil(attractionsArray.length / ITEMS_PER_PAGE);
+  const currentItems = dataArray.slice(startIndex, endIndex);
+  const pageCount = Math.ceil(dataArray.length / ITEMS_PER_PAGE);
 
   return (
     <Container>
-      <DetailHeader>在所选范围内查询到{attractionsCount}个景点</DetailHeader>
       <CardsContainer>
-        {currentItems.map(attraction => (
-          <PlaceDetailCard
-            key={attraction.position_id}
-            attraction={attraction}
-          />
+        {currentItems.map(item => (
+          <PlaceDetailCard key={item.position_id} item={item} />
         ))}
       </CardsContainer>
       <Pagination

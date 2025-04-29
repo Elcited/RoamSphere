@@ -1,10 +1,18 @@
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import useMapModePlugin from "../features/map/useMapModePlugin";
-import useGeocoders from "../hooks/useGeocoders";
 import useAMapLoader from "../hooks/useAMapLoader";
-import useSingleGeocoder from "../hooks/useSingleGeocoder";
+import useInitializeMap from "../hooks/useInitializeMap";
+import useMapModePlugin from "../features/map/useMapModePlugin";
+import useGeocodedLocations from "../hooks/useGeocodedLocations";
+import useHighlightedSegment from "../features/routeDetail/useHighlightedSegment";
+import useMapControls from "../features/map/useMapControls";
+import { useEffect } from "react";
+import { setIsRouteRendered } from "../features/routeDetail/routeDetailSlice";
+import useRouteMapSync from "../features/routeDetail/useRouteMapSync";
+import { setAttractionCenterLocation } from "../features/attractions/attractionSlice";
+import { setHotelCenterLocation } from "../features/hotels/hotelSlice";
+import { setPositionCenterLocation } from "../features/positions/positionSlice";
+import useUpdateFallback from "../features/map/useUpdateFallback";
 
 const MapContainer = styled.div`
   min-width: 100vw;
@@ -13,7 +21,9 @@ const MapContainer = styled.div`
 
 function Map() {
   const { data: AMap, isSuccess, isLoading: isAMapLoading } = useAMapLoader();
-  const { mapMode } = useSelector(store => store.map);
+  const { mapMode, useEndAsCenter, currentCenterLocation } = useSelector(
+    store => store.map
+  );
   const { start, end, highlightedSegment } = useSelector(
     store => store.routeDetail
   );
@@ -25,34 +35,31 @@ function Map() {
     positionCenterLocation,
     positionType,
   } = useSelector(store => store.position);
+  const dispatch = useDispatch();
 
-  const mapRef = useRef(null);
-  const [map, setMap] = useState(null);
+  /* 加载地图实例 */
+  const { mapRef, map } = useInitializeMap(AMap, isSuccess);
 
-  const { startLocation, endLocation } = useGeocoders(
-    AMap,
+  /* 加载地图控件 */
+  useMapControls(AMap, map, isSuccess);
+
+  /* 获取地点经纬度 */
+  const {
+    startLocation,
+    endLocation,
+    attractionCoordinate,
+    hotelCoordinate,
+    positionCoordinate,
+  } = useGeocodedLocations(AMap, isSuccess, {
     start,
     end,
-    isSuccess
-  );
-
-  const attractionCoordinate = useSingleGeocoder(
-    AMap,
     attractionCenterLocation,
-    isSuccess
-  );
-
-  const hotelCoordinate = useSingleGeocoder(
-    AMap,
     hotelCenterLocation,
-    isSuccess
-  );
-
-  const positionCoordinate = useSingleGeocoder(
-    AMap,
     positionCenterLocation,
-    isSuccess
-  );
+  });
+  console.log(startLocation, endLocation);
+
+  useUpdateFallback(AMap, map);
 
   useMapModePlugin(
     AMap,
@@ -65,44 +72,23 @@ function Map() {
     positionKeyWord,
     positionRegion,
     positionCoordinate,
-    positionType
+    positionType,
+    useEndAsCenter
   );
 
-  useEffect(() => {
-    if (!isSuccess || !AMap) return;
-    const mapInstance = new AMap.Map(mapRef.current, {
-      zoom: 11,
-    });
-    setMap(mapInstance);
+  useHighlightedSegment(map, AMap, highlightedSegment);
 
-    return () => {
-      mapInstance?.destroy();
-    };
-  }, [AMap, isSuccess]);
+  useRouteMapSync(AMap, map);
 
   useEffect(() => {
-    if (!map || !AMap || !highlightedSegment?.length) return;
-
-    const highLightedPath = highlightedSegment
-      .split(";")
-      .map(h => h.split(","))
-      .map(h => new AMap.LngLat(h[0], h[1]));
-
-    let highlightLine = new AMap.Polyline({
-      path: highLightedPath,
-      strokeColor: "#ff6f00",
-      strokeWeight: 6,
-      strokeOpacity: 1,
-      lineJoin: "round",
-      zIndex: 200,
-    });
-
-    map.add(highlightLine);
-
     return () => {
-      map.remove(highlightLine);
+      dispatch(setIsRouteRendered(false));
+
+      dispatch(setAttractionCenterLocation(null));
+      dispatch(setHotelCenterLocation(null));
+      dispatch(setPositionCenterLocation(null));
     };
-  }, [map, AMap, highlightedSegment]);
+  }, []);
 
   return <MapContainer ref={mapRef}></MapContainer>;
 }

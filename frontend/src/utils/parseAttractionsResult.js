@@ -1,5 +1,5 @@
 export default function parseAttractionsResult(attractionsList) {
-  const parsedAttractionResult = attractionsList.map(attraction => {
+  const parsedAttractionResult = attractionsList?.map(attraction => {
     return {
       position_id: attraction.position_id,
       name: attraction.name,

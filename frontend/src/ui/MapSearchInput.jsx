@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import TextField from "@mui/material/TextField";
-import { IconButton } from "@mui/material";
+import InputBase from "@mui/material/InputBase";
+import InputAdornment from "@mui/material/InputAdornment";
+import Autocomplete from "@mui/material/Autocomplete";
+import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormControl from "@mui/material/FormControl";
 import useAMapLoader from "../hooks/useAMapLoader";
 import useQueryUpdater from "../hooks/useQueryUpdater";
-import { useDispatch } from "react-redux";
 import {
   setPositionCenterLocation,
   setPositionKeyWord,
@@ -18,18 +16,13 @@ import {
   setPositionType,
 } from "../features/positions/positionSlice";
 import { setMapMode } from "../features/map/mapSlice";
+import { setIsRouteRendered } from "../features/routeDetail/routeDetailSlice";
 
 const InputBox = styled.div`
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
-  z-index: 20;
-  padding: 0;
-`;
-
-const IconButtonBox = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 1.2rem;
+  width: 100%;
 `;
 
 function MapSearchInput() {
@@ -39,11 +32,26 @@ function MapSearchInput() {
   const dispatch = useDispatch();
   const { updateQueryAndNavigate } = useQueryUpdater();
 
+  const sharedInputStyles = {
+    height: "44px",
+    border: "1px solid #ccc",
+    borderRadius: "8px",
+    padding: "8px 12px",
+    fontSize: "1rem",
+    backgroundColor: "#fff",
+    boxSizing: "border-box",
+    "&::placeholder": {
+      color: "#999",
+      fontSize: "1rem",
+    },
+  };
+
   const handleSearch = () => {
     if (!inputRef.current) return;
     const inputValue = inputRef.current.value;
     if (inputValue) {
       console.log("Searching for:", inputValue);
+      dispatch(setIsRouteRendered(false));
       dispatch(setPositionCenterLocation(null));
       dispatch(setPositionKeyWord(inputValue));
       dispatch(setPositionRegion(region));
@@ -65,8 +73,11 @@ function MapSearchInput() {
     }
   };
 
-  const handleChange = e => {
-    setRegion(e.target.value);
+  const handleCleanInput = () => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+    setRegion("");
   };
 
   useEffect(() => {
@@ -84,45 +95,56 @@ function MapSearchInput() {
 
   return (
     <InputBox>
-      <TextField
-        inputRef={inputRef}
-        id="outlined-basic"
-        label="搜索 RoamSphere"
-        variant="outlined"
-        size="small"
-        fullWidth
+      <Autocomplete
+        freeSolo
+        options={["全国", "北京", "深圳", "上海"]}
+        value={region}
+        onChange={(event, newValue) => {
+          setRegion(newValue || "");
+        }}
+        onInputChange={(event, newInputValue) => {
+          setRegion(newInputValue);
+        }}
+        renderInput={params => (
+          <InputBase
+            {...params.InputProps}
+            placeholder="选择区域"
+            sx={{
+              ...sharedInputStyles,
+            }}
+            inputProps={{
+              ...params.inputProps,
+              "aria-label": "选择区域",
+            }}
+          />
+        )}
         sx={{
-          backgroundColor: "white",
-          width: "362px",
-          height: "50px",
-          borderRadius: "10px",
-          fontSize: "16px",
+          maxWidth: 120,
+          "& .MuiInputBase-root": {
+            height: "44px",
+          },
+          margin: 0,
+          padding: 0,
         }}
       />
-      <IconButtonBox>
-        <IconButton onClick={handleSearch}>
-          <SearchIcon fontSize="large" />
-        </IconButton>
-        <IconButton>
-          <CloseIcon fontSize="large" />
-        </IconButton>
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <Select
-            value={region}
-            onChange={handleChange}
-            displayEmpty
-            inputProps={{ "aria-label": "Without label" }}
-          >
-            <MenuItem value="全国">
-              <em>全国</em>
-            </MenuItem>
-            <MenuItem value="北京">北京</MenuItem>
-            <MenuItem value="深圳">深圳</MenuItem>
-            <MenuItem value="上海">上海</MenuItem>
-          </Select>
-          <FormHelperText>Without label</FormHelperText>
-        </FormControl>
-      </IconButtonBox>
+      <InputBase
+        inputRef={inputRef}
+        placeholder="搜索 RoamSphere"
+        fullWidth
+        sx={{
+          ...sharedInputStyles,
+        }}
+        endAdornment={
+          <InputAdornment position="end" sx={{ ml: 1 }}>
+            <IconButton onClick={handleSearch}>
+              <SearchIcon />
+            </IconButton>
+            <IconButton onClick={handleCleanInput}>
+              <CloseIcon />
+            </IconButton>
+          </InputAdornment>
+        }
+      />
     </InputBox>
   );
 }

@@ -2,21 +2,21 @@ import styled from "styled-components";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
+import Chat from "@mui/icons-material/Chat";
 
 const Container = styled.div`
   padding: 1.2rem;
-  letter-spacing: 1.2px;
 `;
 
 const CommentBox = styled.div`
   display: flex;
-  gap: 0.9rem;
 `;
 
 const LeftBox = styled.div`
-  padding: 0.9rem;
+  padding-top: 0.9rem;
 `;
 
 const RightBox = styled.div`
@@ -50,6 +50,7 @@ const Comment = styled.p`
 const TimeAndOptsBox = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const TimeBox = styled.div``;
@@ -112,18 +113,24 @@ function CommentItem() {
               </CommentHeader>
               <CommentBody>
                 <Comment>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Accusantium molestias cumque iure quibusdam laboriosam
+                  中文测试 Lorem ipsum dolor sit amet consectetur adipisicing
+                  elit. Accusantium molestias cumque iure quibusdam laboriosam
                   consectetur, perferendis nulla quas officiis excepturi qui
                   reiciendis? Numquam, obcaecati quasi consequatur
                   exercitationem aliquam in id.
                 </Comment>
                 <TimeAndOptsBox>
                   <TimeBox>20xx年xx月xx日</TimeBox>
-                  <ReplyBox>回复</ReplyBox>
+                  <ReplyBox>
+                    <Chat fontSize="large" />
+                  </ReplyBox>
                   <OptsBox>
-                    <ThumbUpOffAltIcon fontSize="large" />
-                    <ThumbDownOffAltIcon fontSize="large" />
+                    <IconButton>
+                      <ThumbUpOffAltIcon fontSize="large" />
+                    </IconButton>
+                    <IconButton>
+                      <ThumbDownOffAltIcon fontSize="large" />
+                    </IconButton>
                   </OptsBox>
                 </TimeAndOptsBox>
               </CommentBody>

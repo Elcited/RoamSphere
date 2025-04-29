@@ -1,10 +1,15 @@
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 
-export default function useGetRoutes(startLocation, endLocation, AMap, map) {
-  const { travelMode, start, end, strategy } = useSelector(
-    store => store.routeDetail
-  );
+export default function useGetRoutes(
+  startLocation,
+  endLocation,
+  AMap,
+  map,
+  mapMode,
+  travelMode
+) {
+  const { start, end, strategy } = useSelector(store => store.routeDetail);
   const startName = encodeURIComponent(start);
   const endName = encodeURIComponent(end);
 

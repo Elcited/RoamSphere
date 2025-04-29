@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   start: "",
   end: "",
-  travelMode: "driving",
+  travelMode: null,
   info: null,
   polyline: null,
   strategy: null,
@@ -35,6 +35,7 @@ const initialState = {
   ],
   isClickNavigation: false,
   highlightedSegment: null,
+  isRouteRendered: false,
 };
 
 const routeDetailSlice = createSlice({
@@ -69,6 +70,9 @@ const routeDetailSlice = createSlice({
     setHighlightedSegment(state, action) {
       state.highlightedSegment = action.payload;
     },
+    setIsRouteRendered(state, action) {
+      state.isRouteRendered = action.payload;
+    },
   },
 });
 
@@ -82,6 +86,7 @@ export const {
   setPolyline,
   setIsClickNavigation,
   setHighlightedSegment,
+  setIsRouteRendered,
 } = routeDetailSlice.actions;
 
 export default routeDetailSlice.reducer;

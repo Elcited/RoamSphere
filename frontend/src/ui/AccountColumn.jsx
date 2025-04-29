@@ -1,13 +1,6 @@
 import styled from "styled-components";
 import AccountBodyItem from "./AccountBodyItem";
 
-// const StyledColumn = styled.div`
-//   display: grid;
-//   grid-template-columns: 1fr 2fr;
-//   justify-items: center;
-//   align-items: start;
-// `;
-
 const StyledColumn = styled.div`
   font-size: 1.2rem;
   display: flex;

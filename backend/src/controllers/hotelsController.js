@@ -3,7 +3,7 @@ const fetchPositionsFromAPI = require("../utils/fetchPositionsFromAPI");
 const Hotel = require("../models/hotelModel");
 
 async function getHotels(req, res) {
-  const { location, radius = 5000 } = req.query;
+  const { location, radius = 10000 } = req.query;
   if (!location) {
     return res.status(400).json({ error: "缺少经纬度参数！" });
   }
@@ -36,8 +36,12 @@ async function getHotels(req, res) {
     }
 
     const { data: hotelsDataFromAPI } = await fetchPositionsFromAPI(
+      null,
       [lng, lat],
-      100000
+      100000,
+      null,
+      null,
+      radius
     );
     const formattedHotels = formatHotelResult(hotelsDataFromAPI);
 

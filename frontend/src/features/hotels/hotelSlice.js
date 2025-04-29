@@ -8,8 +8,7 @@ const initialState = {
   loading: false,
   error: null,
   source: null,
-  parsedHotels: [],
-  parsedHotelDetail: [],
+  isHotelRendered: false,
 };
 
 const hotelSlice = createSlice({
@@ -36,24 +35,20 @@ const hotelSlice = createSlice({
     setError(state, action) {
       state.error = action.payload;
     },
-    setParsedHotels(state, action) {
-      state.parsedHotels = action.payload;
-    },
-    setParsedHotelDetail(state, action) {
-      state.parsedHotelDetail = action.payload;
+    setIsHotelRendered(state, action) {
+      state.isHotelRendered = action.payload;
     },
   },
 });
 
 export const {
+  setHotelCenterLocation,
   setLoading,
   setError,
-  setParsedHotels,
-  setParsedHotelDetail,
-  setHotelCenterLocation,
   setHotelsArray,
   setSingleHotel,
   setSource,
+  setIsHotelRendered,
 } = hotelSlice.actions;
 
 export default hotelSlice.reducer;

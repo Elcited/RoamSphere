@@ -7,6 +7,7 @@ const initialState = {
   singleAttraction: null,
   attractionInfo: null,
   isSelected: false,
+  isAttractionRendered: false,
 };
 
 const attractionSlice = createSlice({
@@ -27,6 +28,9 @@ const attractionSlice = createSlice({
     setIsSelected(state, action) {
       state.name = action.payload;
     },
+    setIsAttractionRendered(state, action) {
+      state.isAttractionRendered = action.payload;
+    },
   },
 });
 
@@ -34,6 +38,7 @@ export const {
   setAttractionCenterLocation,
   setAttractionsArray,
   setIsSelected,
+  setIsAttractionRendered,
 } = attractionSlice.actions;
 
 export default attractionSlice.reducer;

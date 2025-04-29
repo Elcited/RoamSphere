@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import SyncIcon from "@mui/icons-material/Sync";
@@ -12,9 +12,15 @@ import {
   setEnd,
   setStart,
   setStrategy,
+  setTravelMode,
 } from "../features/routeDetail/routeDetailSlice";
 import SearchInput from "./SearchInput";
 import useQueryUpdater from "../hooks/useQueryUpdater";
+import {
+  setCurrentCenterLocation,
+  setHasRouteEnd,
+  setMapMode,
+} from "../features/map/mapSlice";
 
 const Container = styled.form`
   display: flex;
@@ -36,7 +42,7 @@ const SelectSubmitBox = styled.div`
   align-items: center;
 `;
 
-function RoutesDetailHeader() {
+function RoutesSearchInputs() {
   const { start, end, strategy } = useSelector(store => store.routeDetail);
   const dispatch = useDispatch();
 
@@ -60,6 +66,10 @@ function RoutesDetailHeader() {
     dispatch(setStart(startInput));
     dispatch(setEnd(endInput));
     dispatch(setStrategy(selectedStrategy));
+    dispatch(setCurrentCenterLocation(endInput));
+    dispatch(setHasRouteEnd(true));
+    dispatch(setTravelMode("driving"));
+    dispatch(setMapMode("route"));
 
     updateQueryAndNavigate(
       {
@@ -67,13 +77,11 @@ function RoutesDetailHeader() {
         endLocation: endInput,
         strategy: selectedStrategy,
       },
-      "/map/routes",
+      "/map/routes/route_overview/route_detail",
       {
         replace: true,
       }
     );
-
-    console.log("提交表单，更新 Redux");
   };
 
   const handleSwap = () => {
@@ -130,4 +138,4 @@ function RoutesDetailHeader() {
   );
 }
 
-export default RoutesDetailHeader;
+export default RoutesSearchInputs;

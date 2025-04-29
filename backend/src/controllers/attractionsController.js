@@ -36,8 +36,12 @@ async function getAttractions(req, res) {
     }
 
     const { data: attractionsDataFromAPI } = await fetchPositionsFromAPI(
+      null,
       [lng, lat],
-      110000
+      110000,
+      null,
+      null,
+      radius
     );
     const formattedAttractions = formatAttractionResult(attractionsDataFromAPI);
 

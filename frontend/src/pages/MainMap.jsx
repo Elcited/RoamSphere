@@ -1,9 +1,12 @@
 import styled from "styled-components";
 import Map from "../ui/Map";
 import MapSidebar from "../ui/MapSidebar";
-import SearchPanel from "../ui/SearchPanel";
-import MapSpeedDial from "../ui/MapSpeedDial";
+import MapSearchPanel from "../ui/MapSearchPanel";
+import MapSearchButtons from "../ui/MapSearchButtons";
+import MapControlPanel from "../ui/MapControlPanel";
+import MapLocationToggle from "../ui/MapLocationToggle";
 import { Outlet, useLocation } from "react-router-dom";
+import MapCenterToggle from "../ui/MapCenterToggle";
 
 const MainMapContainer = styled.div`
   display: flex;
@@ -17,8 +20,11 @@ function MainMap() {
   return (
     <MainMapContainer>
       <MapSidebar />
-      <SearchPanel>{!isRoutesPage && <Outlet />}</SearchPanel>
-      <MapSpeedDial />
+      <MapSearchPanel>{!isRoutesPage && <Outlet />}</MapSearchPanel>
+      <MapSearchButtons />
+      <MapControlPanel />
+      <MapLocationToggle />
+      <MapCenterToggle />
       <Map />
     </MainMapContainer>
   );

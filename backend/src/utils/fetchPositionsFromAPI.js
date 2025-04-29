@@ -10,12 +10,6 @@ async function fetchPositionsFromAPI(
 ) {
   try {
     let url;
-    console.log("fetchPositionsFromAPI", lnglat, type, keyword, radius);
-    console.log("lnglat:", lnglat);
-    console.log("type:", type);
-    console.log("keyword:", keyword);
-    console.log("region:", region);
-    console.log("radius:", radius);
 
     if (lnglat?.length === 2) {
       const [lng, lat] = lnglat;

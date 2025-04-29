@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 
-export default function useGeocode(AMap, address, isReady = true) {
+export default function useSingleGeocoder(AMap, address, isReady = true) {
   const [location, setLocation] = useState(null);
 
   useEffect(() => {
     if (!AMap || !address || !isReady) return;
+
+    // 如果 address 是一个长度为 2 的数组，直接返回
+    if (Array.isArray(address) && address.length === 2) {
+      setLocation(address);
+      console.log("直接返回地址：", address);
+      return;
+    }
 
     AMap.plugin("AMap.Geocoder", () => {
       const geocoder = new AMap.Geocoder({ city: "全国" });

@@ -24,7 +24,6 @@ async function getPositions(req, res) {
   try {
     let lng, lat;
 
-    // 场景 ① 搜索栏逻辑（keyword + region）
     if (keyword && region) {
       const geo = await getLngLatByRegion(region);
       console.log("geo", geo);
@@ -65,7 +64,6 @@ async function getPositions(req, res) {
       });
     }
 
-    // 场景 ② SpeedDial 逻辑（location + type，无 keyword）
     if (location && !keyword) {
       [lng, lat] = location.split(",");
 
@@ -85,7 +83,6 @@ async function getPositions(req, res) {
       });
     }
 
-    // 其他组合暂不支持
     return res.status(400).json({ error: "不支持的参数组合" });
   } catch (error) {
     console.error("获取位置信息失败:", error);
