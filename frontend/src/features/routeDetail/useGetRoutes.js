@@ -9,7 +9,8 @@ export default function useGetRoutes(
   mapMode,
   travelMode
 ) {
-  const { start, end, strategy } = useSelector(store => store.routeDetail);
+  const { start, end, strategy } = useSelector(store => store.route);
+  console.log("useGetRoutes travelMode", travelMode);
   const startName = encodeURIComponent(start);
   const endName = encodeURIComponent(end);
 

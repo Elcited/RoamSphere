@@ -1,57 +1,58 @@
-import { useEffect, useId, useRef } from "react";
-import { useDispatch } from "react-redux";
-import {
-  setInfo,
-  setIsRouteRendered,
-  setPolyline,
-} from "../routeDetail/routeDetailSlice";
-import parseDrivingRouteResult from "../../utils/parseDrivingRouteResult";
+import { useRef } from "react";
+import useGetRoutes from "../../features/routeDetail/useGetRoutes";
+import getParserByTravelMode from "../../utils/getParserByTravelMode";
+import useSyncRouteData from "./useSyncRouteData";
+import useRenderTransitPolylines from "../transitRoute/useRenderTransitPolylines";
+import useRenderSimplePolylines from "./useRenderSimplePolylines";
 
-export default function useRenderRoute(
+export default function useRenderRoutes(
   AMap,
   map,
+  startLocation,
+  endLocation,
   mapMode,
-  routeData,
-  isGetRoutesSuccess
+  travelMode
 ) {
-  const dispatch = useDispatch();
-  const polylineRef = useRef(null);
+  const polylineRef = useRef([]);
 
-  useEffect(() => {
-    if (!AMap || !map || mapMode !== "route" || !isGetRoutesSuccess) return;
-    console.log("useRenderRoute执行");
-    const { parsedRoutePolyline, parsedRouteDetail } =
-      parseDrivingRouteResult(routeData);
+  const { data: routeData, isSuccess } = useGetRoutes(
+    startLocation,
+    endLocation,
+    AMap,
+    map,
+    mapMode,
+    travelMode
+  );
 
-    dispatch(setInfo(parsedRouteDetail));
-    dispatch(setPolyline(parsedRoutePolyline));
+  const shouldRender = isSuccess && mapMode === "route";
 
-    if (polylineRef.current) {
-      map.remove(polylineRef.current);
-      polylineRef.current = null;
-    }
+  const parsedRoutes = shouldRender
+    ? getParserByTravelMode(travelMode)(routeData.routes)
+    : [];
 
-    const path = parsedRoutePolyline.polylinesForRenderRoutes.map(
-      p => new AMap.LngLat(p[0], p[1])
+  useSyncRouteData(parsedRoutes, shouldRender, travelMode);
+
+  if (["walking", "cycling", "driving"].includes(travelMode)) {
+    const colorMap = {
+      walking: "#EB2F96",
+      cycling: "#FAAD14",
+      driving: "#52C41A",
+    };
+    useRenderSimplePolylines(
+      parsedRoutes,
+      map,
+      AMap,
+      polylineRef,
+      shouldRender,
+      colorMap[travelMode]
     );
-    const basePolyline = new AMap.Polyline({
-      path,
-      strokeWeight: 5,
-      strokeColor: "green",
-      lineJoin: "round",
-    });
-
-    map.add(basePolyline);
-    dispatch(setIsRouteRendered(true));
-    polylineRef.current = basePolyline;
-    map.setFitView([basePolyline]);
-
-    // return () => {
-    //   if (polylineRef.current) {
-    //     map.remove(polylineRef.current);
-    //   }
-    // };
-  }, [AMap, map, mapMode, isGetRoutesSuccess, routeData, dispatch]);
-
-  return polylineRef;
+  } else if (travelMode === "transit") {
+    useRenderTransitPolylines(
+      parsedRoutes,
+      map,
+      AMap,
+      polylineRef,
+      shouldRender
+    );
+  }
 }

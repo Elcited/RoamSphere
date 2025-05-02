@@ -28,19 +28,19 @@ function evaluateRoadStatus(roadStatus) {
     const statusSet = new Set(statusArray);
 
     if ([...statusSet].some(s => s?.includes("严重拥堵"))) {
-      return "严重拥堵，建议绕道通行";
+      return "🔴严重拥堵";
     }
     if ([...statusSet].some(s => s?.includes("拥堵"))) {
-      return "前方路况拥堵";
+      return "🟠拥堵";
     }
     if ([...statusSet].some(s => s?.includes("缓行"))) {
-      return "路况缓行，请注意";
+      return "🟡缓行";
     }
     if ([...statusSet].some(s => s?.includes("未知"))) {
-      return "路况未知，小心通行";
+      return "🔵未知";
     }
     if ([...statusSet].some(s => s?.includes("畅通"))) {
-      return "路况畅通，方便通行";
+      return "🟢畅通";
     }
 
     return "无有效信息";

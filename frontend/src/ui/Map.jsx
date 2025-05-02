@@ -7,7 +7,7 @@ import useGeocodedLocations from "../hooks/useGeocodedLocations";
 import useHighlightedSegment from "../features/routeDetail/useHighlightedSegment";
 import useMapControls from "../features/map/useMapControls";
 import { useEffect } from "react";
-import { setIsRouteRendered } from "../features/routeDetail/routeDetailSlice";
+import { setIsRouteRendered } from "../features/routeDetail/routeSlice";
 import useRouteMapSync from "../features/routeDetail/useRouteMapSync";
 import { setAttractionCenterLocation } from "../features/attractions/attractionSlice";
 import { setHotelCenterLocation } from "../features/hotels/hotelSlice";
@@ -24,9 +24,7 @@ function Map() {
   const { mapMode, useEndAsCenter, currentCenterLocation } = useSelector(
     store => store.map
   );
-  const { start, end, highlightedSegment } = useSelector(
-    store => store.routeDetail
-  );
+  const { start, end, highlightedSegment } = useSelector(store => store.route);
   const { attractionCenterLocation } = useSelector(store => store.attraction);
   const { hotelCenterLocation } = useSelector(store => store.hotel);
   const {
@@ -78,7 +76,7 @@ function Map() {
 
   useHighlightedSegment(map, AMap, highlightedSegment);
 
-  useRouteMapSync(AMap, map);
+  // useRouteMapSync(AMap, map);
 
   useEffect(() => {
     return () => {

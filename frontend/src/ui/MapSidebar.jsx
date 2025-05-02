@@ -8,7 +8,6 @@ import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const SidebarContainer = styled.div`
   padding: 1.2rem;
-
   background-color: #f7f7f7;
   border-radius: 1.2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -16,7 +15,7 @@ const SidebarContainer = styled.div`
 `;
 
 const Siderbar = styled.div`
-  width: 5rem;
+  width: 4rem;
   display: flex;
   flex-direction: column;
   align-items: center;

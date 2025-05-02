@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import AttractionsIcon from "@mui/icons-material/Attractions";
 import Button from "@mui/material/Button";
+import AttractionsIcon from "@mui/icons-material/Attractions";
 import HotelIcon from "@mui/icons-material/Hotel";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import AtmIcon from "@mui/icons-material/Atm";
@@ -9,7 +9,7 @@ import MedicationIcon from "@mui/icons-material/Medication";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import { useDispatch, useSelector } from "react-redux";
 import { setAttractionCenterLocation } from "../features/attractions/attractionSlice";
-import { setIsSearchPanelExpand, setMapMode } from "../features/map/mapSlice";
+import { setMapMode } from "../features/map/mapSlice";
 import useQueryUpdater from "../hooks/useQueryUpdater";
 import { setHotelCenterLocation } from "../features/hotels/hotelSlice";
 import {
@@ -17,7 +17,7 @@ import {
   setPositionKeyWord,
   setPositionType,
 } from "../features/positions/positionSlice";
-import { setIsRouteRendered } from "../features/routeDetail/routeDetailSlice";
+import { setIsRouteRendered } from "../features/routeDetail/routeSlice";
 import { useLocation } from "react-router-dom";
 import useFallbackCenterLocation from "../hooks/useFallbackCenterLocation";
 import store from "../store/store";

@@ -6,6 +6,14 @@ function normalizeTransitRouteDetail(routeDetail) {
     return coordStr.split(",").map(Number);
   };
 
+  const normalizeRailwayCoordinates = str => {
+    if (!str || typeof str !== "string") return [0, 0];
+    const parts = str.trim().split(" ");
+    if (parts.length !== 2) return [0, 0];
+    const [lng, lat] = parts.map(Number);
+    return isNaN(lng) || isNaN(lat) ? [0, 0] : [lng, lat];
+  };
+
   const normalizeStops = stops => {
     return (stops || []).map(stop => ({
       name: stop.name,
@@ -43,6 +51,10 @@ function normalizeTransitRouteDetail(routeDetail) {
         cost: {
           duration: Number(busline.cost.duration) || 0,
         },
+        bus_time_tips: busline.bus_time_tips,
+        bustimetag: Number(busline.bustimetag),
+        start_time: Number(busline.start_time),
+        end_time: Number(busline.end_time),
         via_num: Number(busline.via_num) || 0,
         via_stops: normalizeStops(busline.via_stops),
       }));
@@ -53,10 +65,26 @@ function normalizeTransitRouteDetail(routeDetail) {
         departure_stop: {
           ...subwayline.departure_stop,
           location: normalizeCoordinates(subwayline.departure_stop.location),
+          entrance: subwayline.departure_stop.entrance
+            ? {
+                name: subwayline.departure_stop.name,
+                location: normalizeCoordinates(
+                  subwayline.departure_stop.entrance.location
+                ),
+              }
+            : {},
         },
         arrival_stop: {
           ...subwayline.arrival_stop,
           location: normalizeCoordinates(subwayline.arrival_stop.location),
+          exit: subwayline.arrival_stop.exit
+            ? {
+                name: subwayline.arrival_stop.exit.name,
+                location: normalizeCoordinates(
+                  subwayline.arrival_stop.exit.location
+                ),
+              }
+            : {},
         },
         name: subwayline.name,
         id: subwayline.id,
@@ -65,6 +93,10 @@ function normalizeTransitRouteDetail(routeDetail) {
         cost: {
           duration: Number(subwayline.cost.duration) || 0,
         },
+        bus_time_tips: subwayline.bus_time_tips,
+        bustimetag: Number(subwayline.bustimetag),
+        start_time: Number(subwayline.start_time),
+        end_time: Number(subwayline.end_time),
         via_num: Number(subwayline.via_num) || 0,
         via_stops: normalizeStops(subwayline.via_stops),
       }));
@@ -88,6 +120,10 @@ function normalizeTransitRouteDetail(routeDetail) {
           cost: {
             duration: Number(railwayline.cost.duration) || 0,
           },
+          bus_time_tips: railwayline.bus_time_tips,
+          bustimetag: Number(railwayline.bustimetag),
+          start_time: Number(railwayline.start_time),
+          end_time: Number(railwayline.end_time),
           via_num: Number(railwayline.via_num) || 0,
           via_stops: normalizeStops(railwayline.via_stops),
         })
@@ -104,13 +140,15 @@ function normalizeTransitRouteDetail(routeDetail) {
         type: segment.railway.type,
         departure_stop: {
           ...segment.railway.departure_stop,
-          location: normalizeCoordinates(
+          location: normalizeRailwayCoordinates(
             segment.railway.departure_stop.location
           ),
         },
         arrival_stop: {
           ...segment.railway.arrival_stop,
-          location: normalizeCoordinates(segment.railway.arrival_stop.location),
+          location: normalizeRailwayCoordinates(
+            segment.railway.arrival_stop.location
+          ),
         },
         railway_spaces: (segment.railway.railway_spaces || []).map(space => ({
           ...space,

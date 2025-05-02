@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { setTravelMode } from "../features/routeDetail/routeDetailSlice";
+import { setTravelMode } from "../features/routeDetail/routeSlice";
 import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const Container = styled.div`
@@ -38,6 +38,7 @@ function RouteOtherOptions() {
 
   const handleClick = mode => {
     dispatch(setTravelMode(mode));
+    console.log("xxx");
 
     updateQueryAndNavigate(
       {

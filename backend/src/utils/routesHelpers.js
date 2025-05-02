@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 const API_REQUEST_KEY = process.env.API_REQUEST_KEY;
 
-function generateRouteHash({
+function generateRouteHashes({
   strategy,
   mode,
   startLng,
@@ -11,21 +11,26 @@ function generateRouteHash({
   endLng,
   endLat,
 }) {
-  const raw = {
-    strategy,
-    mode,
-    startLng,
-    startLat,
-    endLng,
-    endLat,
-  };
+  const strategies = strategy.includes(",")
+    ? strategy.split(",").map(s => Number(s.trim()))
+    : [Number(strategy)];
 
-  const str = JSON.stringify(raw);
+  return strategies.map(s => {
+    const raw = {
+      strategy: s,
+      mode,
+      startLng,
+      startLat,
+      endLng,
+      endLat,
+    };
 
-  // 使用 crypto 生成 SHA256 哈希值
-  const hash = crypto.createHash("sha256").update(str).digest("hex");
+    console.log(s, mode, startLng, startLat, endLng, endLat);
 
-  return hash;
+    const str = JSON.stringify(raw);
+    const hash = crypto.createHash("sha256").update(str).digest("hex");
+    return { strategy: s, hash };
+  });
 }
 
 function getUrl(
@@ -69,8 +74,10 @@ function formatDrivingRouteResultDB(
   startInfo,
   endInfo
 ) {
-  const start_lnglat = routeDataFromAPI.route.origin.split(",");
-  const end_lnglat = routeDataFromAPI.route.destination.split(",");
+  if (!routeDataFromAPI || !routeDataFromAPI.route.paths.length) return [];
+
+  const start_lnglat = routeDataFromAPI.route.origin;
+  const end_lnglat = routeDataFromAPI.route.destination;
   const taxi_cost = Number(routeDataFromAPI.route.taxi_cost);
   const distance = Number(routeDataFromAPI.route.paths[0].distance);
   const duration = Number(routeDataFromAPI.route.paths[0].cost.duration);
@@ -128,6 +135,10 @@ function formatDrivingRouteResultRedis(routeDataFromAPI) {
     step.tmcs.map(tmc => tmc.tmc_distance)
   );
 
+  const roadCities = routeDataFromAPI.route.paths[0].steps.map(step =>
+    step.cities.map(city => city)
+  );
+
   return {
     polylines,
     instructions,
@@ -136,6 +147,7 @@ function formatDrivingRouteResultRedis(routeDataFromAPI) {
     navigations,
     roadStatus,
     roadDistance,
+    roadCities,
   };
 }
 
@@ -147,8 +159,8 @@ function formatWalkingRouteResultDB(
   startInfo,
   endInfo
 ) {
-  const start_lnglat = routeDataFromAPI.route.origin.split(",");
-  const end_lnglat = routeDataFromAPI.route.destination.split(",");
+  const start_lnglat = routeDataFromAPI.route.origin;
+  const end_lnglat = routeDataFromAPI.route.destination;
   const distance = Number(routeDataFromAPI.route.paths[0].distance);
   const duration = Number(routeDataFromAPI.route.paths[0].cost.duration);
 
@@ -217,8 +229,8 @@ function formatTransitRouteResultDB(
     return [];
   }
 
-  const start_lnglat = routeDataFromAPI.route.origin.split(",");
-  const end_lnglat = routeDataFromAPI.route.destination.split(",");
+  const start_lnglat = routeDataFromAPI.route.origin;
+  const end_lnglat = routeDataFromAPI.route.destination;
 
   const transit_options = (routeDataFromAPI.route.transits || [])
     .slice(0, 5)
@@ -229,8 +241,8 @@ function formatTransitRouteResultDB(
 
           if (segment.walking) {
             segmentData.walking = {
-              origin: segment.walking.origin.split(","),
-              destination: segment.walking.destination.split(","),
+              origin: segment.walking.origin,
+              destination: segment.walking.destination,
               distance: Number(segment.walking.distance),
               duration: Number(segment.walking.cost.duration),
             };
@@ -251,6 +263,10 @@ function formatTransitRouteResultDB(
                   location: busline.arrival_stop.location,
                 },
                 name: busline.name,
+                bus_time_tips: busline.bus_time_tips,
+                bustimetag: busline.bustimetag,
+                start_time: busline.start_time,
+                end_time: busline.end_time,
                 id: busline.id,
                 type: busline.type,
                 distance: busline.distance,
@@ -272,14 +288,18 @@ function formatTransitRouteResultDB(
                   name: subwayline.departure_stop.name,
                   id: subwayline.departure_stop.id,
                   location: subwayline.departure_stop.location,
-                  entrance: subwayline.departure_stop.entrance,
+                  entrance: subwayline.departure_stop?.entrance,
                 },
                 arrival_stop: {
                   name: subwayline.arrival_stop.name,
                   id: subwayline.arrival_stop.id,
                   location: subwayline.arrival_stop.location,
-                  exit: subwayline.arrival_stop.exit,
+                  exit: subwayline.arrival_stop?.exit,
                 },
+                bus_time_tips: subwayline.bus_time_tips,
+                bustimetag: subwayline.bustimetag,
+                start_time: subwayline.start_time,
+                end_time: subwayline.end_time,
                 name: subwayline.name,
                 id: subwayline.id,
                 type: subwayline.type,
@@ -315,6 +335,10 @@ function formatTransitRouteResultDB(
                 cost: {
                   duration: busline.cost.duration,
                 },
+                bus_time_tips: busline.bus_time_tips,
+                bustimetag: busline.bustimetag,
+                start_time: busline.start_time,
+                end_time: busline.end_time,
                 via_num: busline.via_num,
                 via_stops: busline.via_stops.map(viaStop => ({
                   name: viaStop.name,
@@ -350,6 +374,14 @@ function formatTransitRouteResultDB(
               },
               railway_spaces: [segment.railway.spaces.map(space => space)],
             };
+            console.log(
+              "departure_stop location",
+              segment.railway.departure_stop.location
+            );
+            console.log(
+              "arrival_stop location",
+              segment.railway.arrival_stop.location
+            );
           }
 
           if (segment.taxi) {
@@ -451,13 +483,19 @@ function formatTransitRouteResultRedis(routeDataFromAPI) {
           .map(busline => busline.polyline?.polyline)
           .filter(Boolean);
         if (cityRailwayPolyline.length > 0) {
-          segmentData.taxi = { polyline: cityRailwayPolyline };
+          segmentData.cityRailway = { polyline: cityRailwayPolyline };
         }
+      }
+
+      if (segment.railway) {
+        segmentData.railway = {
+          polyline: segment.railway.polyline?.polyline,
+        };
       }
 
       if (segment.taxi) {
         segmentData.taxi = {
-          polyline: segment.taxi.polyline.polyline,
+          polyline: segment.taxi.polyline?.polyline,
         };
       }
       return segmentData;
@@ -482,12 +520,8 @@ function formatCyclingRouteResultDB(
     return [];
   }
 
-  const start_lnglat = routeDataFromAPI?.route
-    ? routeDataFromAPI.route.origin.split(",").map(Number)
-    : [];
-  const end_lnglat = routeDataFromAPI?.route
-    ? routeDataFromAPI.route.destination.split(",").map(Number)
-    : [];
+  const start_lnglat = routeDataFromAPI?.route.origin;
+  const end_lnglat = routeDataFromAPI?.route.destination;
   const distance = Number(routeDataFromAPI.route.paths[0].distance);
   const duration = Number(routeDataFromAPI.route.paths[0].duration);
 
@@ -590,7 +624,7 @@ async function fetchRoutesFromAPI(
 }
 
 module.exports = {
-  generateRouteHash,
+  generateRouteHashes,
   fetchRoutesFromAPI,
   formatDrivingRouteResultDB,
   formatDrivingRouteResultRedis,

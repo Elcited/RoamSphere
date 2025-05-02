@@ -6,7 +6,7 @@ import { Button } from "@mui/material";
 import {
   setIsClickNavigation,
   setStrategy,
-} from "../features/routeDetail/routeDetailSlice";
+} from "../features/routeDetail/routeSlice";
 import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const Container = styled.div`

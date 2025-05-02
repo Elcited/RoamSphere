@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import gsap from "gsap";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import HeroFormButton from "./HeroFormButton";
@@ -9,7 +8,7 @@ import {
   setStart,
   setStrategy,
   setTravelMode,
-} from "../features/routeDetail/routeDetailSlice";
+} from "../features/routeDetail/routeSlice";
 import {
   setCurrentCenterLocation,
   setHasRouteEnd,
@@ -18,7 +17,6 @@ import {
 } from "../features/map/mapSlice";
 import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlice";
 import useQueryUpdater from "../hooks/useQueryUpdater";
-import { setAttractionCenterLocation } from "../features/attractions/attractionSlice";
 
 const StyledForm = styled.form`
   font-family: inherit;
@@ -67,7 +65,6 @@ function HeroForm() {
   const [endInput, setEndInput] = useState("");
 
   const dispatch = useDispatch();
-  const { start, end, strategy } = useSelector(store => store.routeDetail);
   const { updateQueryAndNavigate } = useQueryUpdater();
 
   const handleStartInput = point => {
@@ -86,7 +83,7 @@ function HeroForm() {
     dispatch(setHasRouteEnd(true));
     dispatch(setMapMode("route"));
     dispatch(setTravelMode("driving"));
-    dispatch(setStrategy(2));
+    dispatch(setStrategy(`0,1,2`));
     dispatch(setIsRoutesDrawerOpen(true));
 
     updateQueryAndNavigate(

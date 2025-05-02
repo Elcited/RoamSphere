@@ -16,7 +16,7 @@ import {
   setPositionType,
 } from "../features/positions/positionSlice";
 import { setMapMode } from "../features/map/mapSlice";
-import { setIsRouteRendered } from "../features/routeDetail/routeDetailSlice";
+import { setIsRouteRendered } from "../features/routeDetail/routeSlice";
 
 const InputBox = styled.div`
   display: flex;

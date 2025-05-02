@@ -5,14 +5,14 @@ const stopSchema = new Schema(
   {
     name: { type: String },
     id: { type: String },
-    location: { type: String },
+    location: { type: [Number] },
     entrance: {
       name: String,
-      location: String,
+      location: { type: [Number] },
     }, // 只有 subway 用
     exit: {
       name: String,
-      location: String,
+      location: { type: [Number] },
     }, // 只有 subway 用
   },
   { _id: false }
@@ -23,7 +23,7 @@ const viaStopSchema = new Schema(
   {
     name: { type: String },
     id: { type: String },
-    location: { type: String },
+    location: { type: [Number] },
   },
   { _id: false }
 );
@@ -51,6 +51,12 @@ const busSchema = new Schema(
     cost: {
       duration: { type: Number },
     },
+    bus_time_tips: { type: String },
+    bustimetag: {
+      type: Number,
+    } /* 0:普通或默认时间段， 1：首班车, 2:末班车, 3:夜间车 */,
+    start_time: { type: Number },
+    end_time: { type: Number },
     via_num: { type: Number },
     via_stops: [viaStopSchema],
   },
@@ -69,6 +75,12 @@ const subwaySchema = new Schema(
     cost: {
       duration: { type: Number },
     },
+    bus_time_tips: { type: String },
+    bustimetag: {
+      type: Number,
+    } /* 0:普通或默认时间段， 1：首班车, 2:末班车, 3:夜间车 */,
+    start_time: { type: Number },
+    end_time: { type: Number },
     via_num: { type: Number },
     via_stops: [viaStopSchema],
   },
@@ -87,6 +99,12 @@ const cityRailwaySchema = new Schema(
     cost: {
       duration: { type: Number },
     },
+    bus_time_tips: { type: String },
+    bustimetag: {
+      type: Number,
+    } /* 0:普通或默认时间段， 1：首班车, 2:末班车, 3:夜间车 */,
+    start_time: { type: Number },
+    end_time: { type: Number },
     via_num: { type: Number },
     via_stops: [viaStopSchema],
   },
@@ -105,7 +123,7 @@ const railwaySchema = new Schema(
     departure_stop: {
       name: { type: String },
       id: { type: String },
-      location: { type: String },
+      location: { type: [Number] },
       adcode: { type: String },
       departure_time: { type: String },
       isOriginStop: { type: Boolean },
@@ -113,7 +131,7 @@ const railwaySchema = new Schema(
     arrival_stop: {
       name: { type: String },
       id: { type: String },
-      location: { type: String },
+      location: { type: [Number] },
       adcode: { type: String },
       arrival_time: { type: String },
       isFinalStop: { type: Boolean },
@@ -135,8 +153,8 @@ const taxiSchema = new Schema(
     distance: { type: Number },
     price: { type: Number },
     drivetime: { type: Number },
-    startpoint: { type: String },
-    startname: { type: String },
+    startpoint: { type: [Number] },
+    startname: { type: [Number] },
     endpoint: { type: String },
     endname: { type: String },
   },
@@ -170,24 +188,29 @@ const transitOptionSchema = new Schema(
 );
 
 // 顶层route表
-const routeSchema = new Schema(
+const transitRouteSchema = new Schema(
   {
     start_location: {
       name: { type: String },
-      coordinates: { type: [String] },
+      coordinates: { type: [Number] },
     },
     end_location: {
       name: { type: String },
-      coordinates: { type: [String] },
+      coordinates: { type: [Number] },
     },
     startInfo: { type: Schema.Types.Mixed },
     endInfo: { type: Schema.Types.Mixed },
     travel_mode: { type: String },
+    route_hash: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     transit_options: [transitOptionSchema],
   },
   { timestamps: true }
 );
 
-const Route = model("route", routeSchema);
+const TransitRoute = model("transitRoute", transitRouteSchema);
 
-module.exports = Route;
+module.exports = TransitRoute;

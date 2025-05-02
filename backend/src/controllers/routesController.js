@@ -1,12 +1,32 @@
-const Route = require("../models/routeModel");
+const TransitRoute = require("../models/transitRouteModel");
+const DrivingRoute = require("../models/drivingRouteModel");
+const CyclingRoute = require("../models/cyclingRouteModel");
+const WalkingRoute = require("../models/walkingRouteModel");
+const normalizeDrivingRouteDetail = require("../utils/normalizeDrivingRouteDetail");
+const normalizeCyclingRouteDetail = require("../utils/normalizeCyclingRouteDetail");
+const normalizeWalkingRouteDetail = require("../utils/normalizeWalkingRouteDetail");
 const redisClient = require("../utils/redisClient");
 const {
-  generateRouteHash,
+  generateRouteHashes,
   fetchRoutesFromAPI,
 } = require("../utils/routesHelpers");
 const formatLngLatGeo = require("../utils/formatLngLatGeo");
 const getRouteDataByMode = require("../utils/getRouteDataByMode");
 const normalizeTransitRouteDetail = require("../utils/normalizeTransitRouteDetail");
+
+const MODE_MODEL_MAP = {
+  transit: TransitRoute,
+  driving: DrivingRoute,
+  cycling: CyclingRoute,
+  walking: WalkingRoute,
+};
+
+const NORMALIZE_FN_MAP = {
+  transit: normalizeTransitRouteDetail,
+  driving: normalizeDrivingRouteDetail,
+  cycling: normalizeCyclingRouteDetail,
+  walking: normalizeWalkingRouteDetail,
+};
 
 const getRoutes = async (req, res) => {
   const {
@@ -20,11 +40,7 @@ const getRoutes = async (req, res) => {
     endLat,
   } = req.query;
 
-  if (!startLng || !startLat || !endLng || !endLat) {
-    return res.status(400).json({ message: "缺少必要的经纬参数" });
-  }
-
-  const route_hash = generateRouteHash({
+  const route_hashes = generateRouteHashes({
     strategy,
     mode,
     startLng,
@@ -34,17 +50,7 @@ const getRoutes = async (req, res) => {
   });
 
   try {
-    const polylineFromRedis = await redisClient.get(`route:${route_hash}`);
-
-    const routeDetailFromDB = await Route.findOne({ route_hash });
-
-    if (polylineFromRedis && routeDetailFromDB) {
-      return res.json({
-        polyline: JSON.parse(polylineFromRedis),
-        routeDetail: routeDetailFromDB,
-        cached: true,
-      });
-    }
+    const results = [];
 
     const { startInfo, endInfo } = await formatLngLatGeo(
       startLng,
@@ -53,29 +59,58 @@ const getRoutes = async (req, res) => {
       endLat
     );
 
-    const { routeDataFromAPI } = await fetchRoutesFromAPI(
-      strategy,
-      mode,
-      startLng,
-      startLat,
-      endLng,
-      endLat,
-      startInfo,
-      endInfo
-    );
+    const RouteModel = MODE_MODEL_MAP[mode];
+    if (!RouteModel) {
+      return res.status(400).json({ message: `不支持的出行方式: ${mode}` });
+    }
 
-    const { routeDetail, polyline } = getRouteDataByMode(
-      mode,
-      routeDataFromAPI,
-      startName,
-      endName,
-      startInfo,
-      endInfo
-    );
+    for (const { strategy: s, hash } of route_hashes) {
+      const polylineFromRedis = await redisClient.get(`route:${hash}`);
+      const routeDetailFromDB = await RouteModel.findOne({ route_hash: hash });
 
-    res.json({ route_hash, polyline, routeDetail, cached: false });
+      if (polylineFromRedis && routeDetailFromDB) {
+        results.push({
+          strategy: s,
+          route_hash: hash,
+          polyline: JSON.parse(polylineFromRedis),
+          routeDetail: routeDetailFromDB,
+          cached: true,
+        });
+        continue;
+      }
 
-    saveRoutes({ route_hash, routeDetail, polyline, mode });
+      const { routeDataFromAPI } = await fetchRoutesFromAPI(
+        s,
+        mode,
+        startLng,
+        startLat,
+        endLng,
+        endLat,
+        startInfo,
+        endInfo
+      );
+
+      const { routeDetail, polyline } = getRouteDataByMode(
+        mode,
+        routeDataFromAPI,
+        startName,
+        endName,
+        startInfo,
+        endInfo
+      );
+
+      results.push({
+        strategy: s,
+        route_hash: hash,
+        polyline,
+        routeDetail,
+        cached: false,
+      });
+
+      saveRoutes({ route_hash: hash, routeDetail, polyline, mode });
+    }
+
+    res.json({ routes: results });
   } catch (error) {
     console.error("路线获取失败", error);
     res.status(500).json({ message: "路线查询出错" });
@@ -89,10 +124,27 @@ const saveRoutes = async ({ route_hash, routeDetail, polyline, mode }) => {
       return;
     }
 
-    let normalizedRouteDetail = routeDetail;
+    const RouteModel = MODE_MODEL_MAP[mode];
+    const normalizeFn = NORMALIZE_FN_MAP[mode];
 
-    if (mode === "transit") {
-      normalizedRouteDetail = normalizeTransitRouteDetail(routeDetail);
+    if (!RouteModel || !normalizeFn) {
+      console.warn(`不支持的出行方式 ${mode}，跳过保存`);
+      return;
+    }
+
+    const existingRoute = await RouteModel.findOne({ route_hash });
+    if (existingRoute) {
+      console.log(`路线 ${route_hash} 已存在，跳过数据库写入`);
+    } else {
+      const normalizedRouteDetail = normalizeFn(routeDetail);
+
+      await RouteModel.create({
+        ...normalizedRouteDetail,
+        route_hash,
+        source: "api",
+      });
+
+      console.log(`路线 ${route_hash} 存储成功`);
     }
 
     await redisClient.setEx(
@@ -100,14 +152,6 @@ const saveRoutes = async ({ route_hash, routeDetail, polyline, mode }) => {
       3600,
       JSON.stringify(polyline)
     );
-
-    await Route.create({
-      ...normalizedRouteDetail,
-      route_hash,
-      source: "api",
-    });
-
-    console.log(`路线 ${route_hash} 存储成功`);
   } catch (error) {
     console.error("保存路线失败", error);
   }
