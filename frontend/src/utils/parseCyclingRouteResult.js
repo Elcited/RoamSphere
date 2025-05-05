@@ -1,3 +1,6 @@
+import formatDistance from "./formatDistance";
+import formatDuration from "./formatDuration";
+
 export default function parseCyclingRouteResult(routes) {
   return routes.map(route => {
     const strategy = route.strategy;
@@ -9,25 +12,10 @@ export default function parseCyclingRouteResult(routes) {
 
     const startLocation = routeDetail?.start_location || {};
     const endLocation = routeDetail?.end_location || {};
-    const startInfo = {
-      country:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.country || "",
-      province:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.province || "",
-      city: routeDetail?.startInfo?.regeocode?.addressComponent?.city || "",
-      district:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.district || "",
-    };
-    const endInfo = {
-      country: routeDetail?.endInfo?.regeocode?.addressComponent?.country || "",
-      province:
-        routeDetail?.endInfo?.regeocode?.addressComponent?.province || "",
-      city: routeDetail?.endInfo?.regeocode?.addressComponent?.city || "",
-      district:
-        routeDetail?.endInfo?.regeocode?.addressComponent?.district || "",
-    };
-    const duration = routeDetail?.duration || "";
-    const distance = routeDetail?.distance || "";
+    const startInfo = routeDetail?.startInfo;
+    const endInfo = routeDetail?.endInfo;
+    const duration = formatDuration(routeDetail?.duration);
+    const distance = formatDistance(routeDetail?.distance);
     const travelMode = routeDetail?.travel_mode;
 
     const polylinesForRenderRoutes =

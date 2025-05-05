@@ -1,3 +1,6 @@
+import formatDuration from "./formatDuration";
+import formatDistance from "./formatDistance";
+
 export default function parseDrivingRouteResult(routes) {
   return routes.map(route => {
     const strategy = route.strategy;
@@ -22,40 +25,17 @@ export default function parseDrivingRouteResult(routes) {
     const startLocation = routeDetail?.start_location || {};
     const endLocation = routeDetail?.end_location || {};
 
-    const distance = routeDetail?.distance || 0;
-    const distanceInKm = (distance / 1000).toFixed(2);
-
-    const duration = routeDetail?.duration || 0;
-    const hours = Math.floor(duration / 3600);
-    const minutes = Math.floor((duration % 3600) / 60);
-    const seconds = duration % 60;
-    const formattedTime = `${hours.toString().padStart(2, "0")}小时 ${minutes
-      .toString()
-      .padStart(2, "0")}分钟 ${seconds.toString().padStart(2, "0")}秒`;
+    const distance = formatDistance(routeDetail?.distance);
+    const duration = formatDuration(routeDetail?.duration);
 
     const taxi_costs = routeDetail?.taxi_costs || 0;
     const totalTolls = routeDetail?.totalTolls || 0;
     const trafficLights = routeDetail?.traffic_lights || 0;
     const travel_mode = routeDetail?.travel_mode || "unknown";
 
-    const startInfo = {
-      country:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.country || "",
-      province:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.province || "",
-      city: routeDetail?.startInfo?.regeocode?.addressComponent?.city || "",
-      district:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.district || "",
-    };
+    const startInfo = routeDetail?.startInfo;
 
-    const endInfo = {
-      country: routeDetail?.endInfo?.regeocode?.addressComponent?.country || "",
-      province:
-        routeDetail?.endInfo?.regeocode?.addressComponent?.province || "",
-      city: routeDetail?.endInfo?.regeocode?.addressComponent?.city || "",
-      district:
-        routeDetail?.endInfo?.regeocode?.addressComponent?.district || "",
-    };
+    const endInfo = routeDetail?.endInfo;
 
     const parsedRoutePolyline = {
       polylinesForRenderRoutes,
@@ -74,8 +54,7 @@ export default function parseDrivingRouteResult(routes) {
       startLocation,
       endLocation,
       distance,
-      distanceInKm,
-      formattedTime,
+      duration,
       taxi_costs,
       totalTolls,
       trafficLights,

@@ -16,6 +16,7 @@ import {
 } from "../features/routeDetail/routeSlice";
 import useAMapLoader from "../hooks/useAMapLoader";
 import useQueryUpdater from "../hooks/useQueryUpdater";
+import useDebouncedCallback from "../hooks/useDebouncedCallback";
 import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlice";
 import SearchInput from "./SearchInput";
 
@@ -34,6 +35,17 @@ const Header = styled.div`
   gap: 1.2rem;
   flex-direction: column;
   font-size: 2.4rem;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  background-color: ${({ selected }) => (selected ? "#e0f7fa" : "transparent")};
+  color: ${({ selected }) => (selected ? "#00796b" : "inherit")};
+  border: ${({ selected }) => (selected ? "2px solid #00796b" : "none")};
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: #b2dfdb;
+  }
 `;
 
 const TravelModeBox = styled.div`
@@ -61,20 +73,36 @@ const CloseButtonBox = styled.div`
 `;
 
 function RoutesSearchInputs() {
-  const { start, end, strategy } = useSelector(store => store.routeDetail);
+  const { start, end, strategy } = useSelector(store => store.route);
   const { data: AMap, isSuccess, isLoading } = useAMapLoader();
   const dispatch = useDispatch();
 
   const startInputRef = useRef(null);
   const endInputRef = useRef(null);
   const [selectedMode, setSelectedMode] = useState("");
-  const [startInput, setStartInput] = useState("");
-  const [endInput, setEndInput] = useState("");
 
   const { updateQueryAndNavigate } = useQueryUpdater();
 
   const handleChangeTravelMode = id => {
     dispatch(setTravelMode(id));
+    setSelectedMode(id);
+    if (id !== "driving") dispatch(setStrategy("0"));
+    else dispatch(setStrategy("0,1,2"));
+  };
+
+  const debouncedSetStart = useDebouncedCallback(
+    value => dispatch(setStart(value)),
+    600
+  );
+
+  const debouncedSetEnd = useDebouncedCallback(
+    value => dispatch(setEnd(value)),
+    600
+  );
+
+  const handleSwap = () => {
+    dispatch(setStart(end));
+    dispatch(setEnd(start));
   };
 
   const TravelModeButtonConfigs = [
@@ -97,8 +125,6 @@ function RoutesSearchInputs() {
   ];
 
   useEffect(() => {
-    setStartInput(start);
-
     if (!isSuccess || !AMap || !startInputRef.current) return;
     AMap.plugin("AMap.AutoComplete", () => {
       new AMap.AutoComplete({
@@ -108,8 +134,6 @@ function RoutesSearchInputs() {
   }, [start, startInputRef, isSuccess]);
 
   useEffect(() => {
-    setEndInput(end);
-
     if (!isSuccess || !AMap || !endInputRef.current) return;
     AMap.plugin("AMap.AutoComplete", () => {
       new AMap.AutoComplete({
@@ -118,23 +142,18 @@ function RoutesSearchInputs() {
     });
   }, [end, endInputRef, isSuccess]);
 
-  const handleSwap = () => {
-    setStartInput(endInput);
-    setEndInput(startInput);
-  };
-
   return (
     <Container>
       <Header>
         <TravelModeBox>
           {TravelModeButtonConfigs.map(config => (
-            <IconButton
+            <StyledIconButton
               key={config.id}
               onClick={() => handleChangeTravelMode(config.id)}
               selected={selectedMode === config.id}
             >
               {config.button}
-            </IconButton>
+            </StyledIconButton>
           ))}
           <CloseButtonBox>
             <IconButton onClick={() => dispatch(setIsRoutesDrawerOpen(false))}>
@@ -145,14 +164,14 @@ function RoutesSearchInputs() {
         <InputsAndButtonBox>
           <InputsBox>
             <SearchInput
-              value={startInput}
-              onChange={setStartInput}
+              value={start}
+              onChange={debouncedSetStart}
               placeholder="选择起点，或者地图上点击一个地点"
               inputRef={startInputRef}
             />
             <SearchInput
-              value={endInput}
-              onChange={setEndInput}
+              value={end}
+              onChange={debouncedSetEnd}
               placeholder="选择终点，或者地图上点击一个地点"
               inputRef={endInputRef}
             />

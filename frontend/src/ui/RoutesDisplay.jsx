@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import RoutesDisplayItem from "./RoutesDisplayItem";
+import useGetRouteInfo from "../hooks/useGetRouteInfo";
 
 const Container = styled.div`
   display: flex;
@@ -11,21 +12,40 @@ const Container = styled.div`
 `;
 
 function RoutesDisplay() {
-  const [isSelected, setIsSelected] = useState(false);
   const dispatch = useDispatch();
-  const { travelMode } = useSelector(store => store.route);
+  const { travelMode, isRoutesLoading, isRoutesSuccess } = useSelector(
+    store => store.route
+  );
 
-  const handleClick = () => {
-    setIsSelected(!isSelected);
-  };
+  const {
+    routesInfo,
+    routesPolylines,
+    routesInstructions,
+    routesRoadDistance,
+    routesWalkTypes,
+    routesStepDistance,
+    rawSlice,
+  } = useGetRouteInfo(travelMode);
+  console.log(`${travelMode} routesInfo`, routesInfo);
 
-  useEffect(() => {}, []);
+  const startPaths = routesInfo.map(
+    routeInfo =>
+      routeInfo.startInfo.regeocode.addressComponent.streetNumber.street
+  );
+
+  if (isRoutesLoading) return <div>Data is Loading...</div>;
 
   return (
     <Container>
-      <RoutesDisplayItem isSelected={isSelected} handleClick={handleClick} />
-      <RoutesDisplayItem />
-      <RoutesDisplayItem />
+      {routesInfo.map((route, index) => (
+        <RoutesDisplayItem
+          key={route.strategy}
+          index={index}
+          routeInfo={route}
+          travelMode={travelMode}
+          startPath={startPaths[index]}
+        />
+      ))}
     </Container>
   );
 }

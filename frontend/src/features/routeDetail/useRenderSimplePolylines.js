@@ -2,11 +2,12 @@ import { useEffect } from "react";
 
 export default function useRenderSimplePolylines(
   parsedRoutes,
+  selectedRouteIndex,
   map,
   AMap,
   polylineRef,
   shouldRender,
-  strokeColor = "#1677FF",
+  strokeColor = "#52C41A",
   strokeWeight = 5
 ) {
   useEffect(() => {
@@ -17,28 +18,32 @@ export default function useRenderSimplePolylines(
       polylineRef.current = [];
     }
 
-    const allPolylines = [];
+    console.log(`simple parsedRoutes`, parsedRoutes);
+    const newPolylines = parsedRoutes
+      .map((route, index) => {
+        const coords = route.parsedRoutePolyline.polylinesForRenderRoutes;
+        if (!coords?.length) return null;
 
-    parsedRoutes.forEach(route => {
-      const coords = route.parsedRoutePolyline?.polylinesForRenderRoutes;
-      if (!coords?.length) return;
+        const isSelected = index === selectedRouteIndex;
 
-      const path = coords.map(coord => new AMap.LngLat(coord[0], coord[1]));
-      const polyline = new AMap.Polyline({
-        path,
-        strokeWeight,
-        strokeColor,
-        lineJoin: "round",
-      });
+        const path = coords.map(coord => new AMap.LngLat(coord[0], coord[1]));
+        const polyline = new AMap.Polyline({
+          path,
+          strokeColor,
+          strokeWeight,
+          lineJoin: "round",
+        });
 
-      map.add(polyline);
-      allPolylines.push(polyline);
-    });
+        map.add(polyline);
+        return polyline;
+      })
+      .filter(Boolean);
 
-    polylineRef.current = allPolylines;
-    map.setFitView(allPolylines);
+    polylineRef.current = newPolylines;
+    map.setFitView(newPolylines);
   }, [
     parsedRoutes,
+    selectedRouteIndex,
     map,
     AMap,
     polylineRef,

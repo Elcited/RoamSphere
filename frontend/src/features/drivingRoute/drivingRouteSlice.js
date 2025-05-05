@@ -10,6 +10,7 @@ const initialState = {
   routesRoadCities: null,
   routesRoadDistance: null,
   routesRoadStatus: null,
+  selectedRoute: null,
 };
 
 const drivingRoute = createSlice({
@@ -43,6 +44,9 @@ const drivingRoute = createSlice({
     setRoutesRoadStatus(state, action) {
       state.routesRoadStatus = action.payload;
     },
+    setDrivingSelectedRoute(state, action) {
+      state.selectedRoute = action.payload;
+    },
   },
 });
 
@@ -56,6 +60,7 @@ export const {
   setRoutesRoadCities,
   setRoutesRoadDistance,
   setRoutesRoadStatus,
+  setDrivingSelectedRoute,
 } = drivingRoute.actions;
 
 export default drivingRoute.reducer;

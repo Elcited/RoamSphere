@@ -32,7 +32,7 @@ export default function useSyncWalkingRouteData(parsedRoutes, shouldDispatch) {
       polylines.push(polyline?.polylinesForRenderDetails);
       navigations.push(polyline?.navigations);
       orientations.push(polyline?.orientations);
-      walkTypes.push(polyline?.walkType);
+      walkTypes.push(polyline?.walkTypes);
     });
 
     dispatch(setRoutesInfo(routesInfo));

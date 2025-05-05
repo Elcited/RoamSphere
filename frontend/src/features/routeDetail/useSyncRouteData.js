@@ -3,11 +3,11 @@ import useSyncDrivingRouteData from "../drivingRoute/useSyncDrivingRouteData";
 import useSyncCyclingRouteData from "../cyclingRoute/useSyncCyclingRouteData";
 import useSyncWalkingRouteData from "../walkingRoute/useSyncWalkingRouteData";
 
-export default function useRenderRoutes({
+export default function useSyncRouteData(
   parsedRoutes,
   shouldDispatch,
-  travelMode,
-}) {
+  travelMode
+) {
   useSyncTransitRouteData(
     parsedRoutes,
     shouldDispatch && travelMode === "transit"

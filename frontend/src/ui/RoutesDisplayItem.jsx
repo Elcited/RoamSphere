@@ -1,4 +1,10 @@
 import styled from "styled-components";
+import RouteDisplayItemIcon from "./RouteDisplayItemIcon";
+import { setDrivingSelectedRoute } from "../features/drivingRoute/drivingRouteSlice";
+import { setTransitSelectedRoute } from "../features/transitRoute/transitRouteSlice";
+import { setCyclingSelectedRoute } from "../features/cyclingRoute/cyclingRouteSlice";
+import { setWalkingSelectedRoute } from "../features/walkingRoute/walkingRouteSlice";
+import { useDispatch } from "react-redux";
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem;
@@ -47,31 +53,48 @@ const DetailButton = styled.button`
   padding: 0.9rem;
 `;
 
-function RoutesDisplayItem({ isSelected, handleClick }) {
+function RoutesDisplayItem({ routeInfo, index, travelMode, startPath }) {
+  const { distance, duration } = routeInfo;
+  const dispatch = useDispatch();
+
+  const routeSettersByMode = {
+    driving: setDrivingSelectedRoute,
+    transit: setTransitSelectedRoute,
+    cycling: setCyclingSelectedRoute,
+    walking: setWalkingSelectedRoute,
+  };
+
+  const handleClick = travelMode => {
+    dispatch(routeSettersByMode[travelMode](index));
+  };
+
   return (
     <Container onClick={handleClick}>
       <RouteInfoOverviewBox>
         <RouteInfoBox>
           <RouteInfoItem>
-            <Item>XXX</Item>
-            <Item>XXX</Item>
+            <RouteDisplayItemIcon travelMode={travelMode} />
           </RouteInfoItem>
           <RouteInfoItem>
-            <Item>XXX</Item>
-            <Item>XXX</Item>
+            <Item>
+              <span>途经</span>
+              <span>{startPath}</span>
+            </Item>
+            <Item>
+              <span>{duration}</span>
+              <span>（如果路途畅通）</span>
+            </Item>
           </RouteInfoItem>
           <RouteInfoItem>
-            <Item>XXX</Item>
-            <Item>XXX</Item>
+            <Item>{duration}</Item>
+            <Item>{distance}</Item>
           </RouteInfoItem>
         </RouteInfoBox>
-        {isSelected ? (
-          <DetailButtonBox>
-            <div>
-              <DetailButton>详情</DetailButton>
-            </div>
-          </DetailButtonBox>
-        ) : null}
+        <DetailButtonBox>
+          <div>
+            <DetailButton>详情</DetailButton>
+          </div>
+        </DetailButtonBox>
       </RouteInfoOverviewBox>
     </Container>
   );

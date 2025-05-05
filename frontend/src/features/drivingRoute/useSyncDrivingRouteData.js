@@ -54,6 +54,5 @@ export default function useSyncDrivingRouteData(drivingRoutes, shouldDispatch) {
     dispatch(setRoutesRoadCities(allRoutesRoadCities));
     dispatch(setRoutesRoadDistance(allRoutesRoadDistance));
     dispatch(setRoutesRoadStatus(allRoutesRoadStatus));
-    dispatch(setIsRouteRendered(true));
   }, [drivingRoutes, shouldDispatch, dispatch]);
 }

@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 
 export default function useGetRoutes(
@@ -37,6 +37,9 @@ export default function useGetRoutes(
     ],
     queryFn: async () => {
       const res = await fetch(
+        `/api/routes/get_routes?mode=${travelMode}&strategy=${strategy}&startName=${startName}&startLng=${startLocation[0]}&startLat=${startLocation[1]}&endName=${endName}&endLng=${endLocation[0]}&endLat=${endLocation[1]}`
+      );
+      console.log(
         `/api/routes/get_routes?mode=${travelMode}&strategy=${strategy}&startName=${startName}&startLng=${startLocation[0]}&startLat=${startLocation[1]}&endName=${endName}&endLng=${endLocation[0]}&endLat=${endLocation[1]}`
       );
       if (!res.ok) throw new Error("No such data in database");

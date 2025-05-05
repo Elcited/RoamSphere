@@ -1,212 +1,104 @@
-export default function parseTransitRouteResult(routes) {
+import formatDuration from "./formatDuration";
+import formatDistance from "./formatDistance";
+
+/**
+ * 完整解析公交/地铁路线数据（支持多线路+同步instructions）
+ * @param {Array} routes API返回的routes数组
+ * @returns {Array} 每个元素为 { polylines, routeInfo }
+ */
+export default function parseTransitRouteResult(routes = []) {
   return routes.map(route => {
-    const strategy = route.strategy;
-    const polyline = route.polyline;
-    const routeDetail = route.routeDetail;
+    const transitOptions = route.routeDetail?.transit_options || [];
+    const transitPolylines = route.polyline || [];
 
-    const startLocation = routeDetail?.start_location || {};
-    const endLocation = routeDetail?.end_location || {};
-    const startInfo = {
-      country:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.country || "",
-      province:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.province || "",
-      city: routeDetail?.startInfo?.regeocode?.addressComponent?.city || "",
-      district:
-        routeDetail?.startInfo?.regeocode?.addressComponent?.district || "",
-    };
-    const endInfo = {
-      country: routeDetail?.endInfo?.regeocode?.addressComponent?.country || "",
-      province:
-        routeDetail?.endInfo?.regeocode?.addressComponent?.province || "",
-      city: routeDetail?.endInfo?.regeocode?.addressComponent?.city || "",
-      district:
-        routeDetail?.endInfo?.regeocode?.addressComponent?.district || "",
-    };
+    const polylines = transitPolylines.map(polyline => ({
+      segments: (polyline.segments || []).map(segment => {
+        const walkingPolyline = segment.walking?.polyline || null;
+        const walkingInstructions = segment.walking?.instructions || [];
 
-    const transitCount = routeDetail?.transit_options.length;
-    const transitsDistance =
-      routeDetail?.transit_options.map(
-        transitOption => transitOption.distance
-      ) || [];
-    const transitsDuration =
-      routeDetail?.transit_options.map(transitOption => {
-        const duration = transitOption.duration || 0;
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor((duration % 3600) / 60);
-        const seconds = duration % 60;
-        const formattedTime = `${hours
-          .toString()
-          .padStart(2, "0")}小时 ${minutes
-          .toString()
-          .padStart(2, "0")}分钟 ${seconds.toString().padStart(2, "0")}秒`;
-
-        return formattedTime;
-      }) || [];
-    const transitsFee =
-      routeDetail?.transit_options.map(
-        transitOption => transitOption.transit_fee
-      ) || [];
-    const isAtNights =
-      routeDetail?.transit_options.map(transitOption =>
-        transitOption.nightflag === "0" ? false : true
-      ) || [];
-    const transitsStepCount = routeDetail?.transit_options.segments.length;
-    const transitsStartTime = routeDetail?.transit_options.segments.map(
-      segment => ({
-        busStartTime:
-          segment?.bus.length !== 0
-            ? segment.bus.flatMap(busline => busline.start_time)
-            : [],
-        subwayStartTime:
-          segment?.subway.length !== 0
-            ? segment.subway.flatMap(subwayline => subwayline.start_time)
-            : [],
-        cityRailwayStartTime:
-          segment?.cityRailway.length !== 0
-            ? segment.cityRailway.flatMap(
-                cityRailwayline => cityRailwayline.start_time
-              )
-            : [],
-      })
-    );
-    const transitsEndTime = routeDetail?.transit_options.segments.map(
-      segment => ({
-        busEndTime:
-          segment?.bus.length !== 0
-            ? segment.bus.flatMap(busline => busline.end_time)
-            : [],
-        subwayEndTime:
-          segment?.subway.length !== 0
-            ? segment.subway.flatMap(subwayline => subwayline.end_time)
-            : [],
-        cityRailwayEndTime:
-          segment?.cityRailway.length !== 0
-            ? segment.cityRailway.flatMap(
-                cityRailwayline => cityRailwayline.end_time
-              )
-            : [],
-      })
-    );
-    const transitsTimeTips = routeDetail?.transit_options.segments.map(
-      segment => ({
-        busTimeTips:
-          segment?.bus.length !== 0
-            ? segment.bus.flatMap(busline => busline.bustimetag)
-            : [],
-        subwayTimeTips:
-          segment?.subway.length !== 0
-            ? segment.subway.flatMap(subwayline => subwayline.bustimetag)
-            : [],
-        cityRailwayTimeTips:
-          segment?.cityRailway.length !== 0
-            ? segment.cityRailway.flatMap(
-                cityRailwayline => cityRailwayline.bustimetag
-              )
-            : [],
-      })
-    );
-    const transitsTimeTags = routeDetail?.transit_options.segments.map(
-      segment => ({
-        busTimeTags:
-          segment?.bus.length !== 0
-            ? segment.bus.flatMap(busline => busline.bus_time_tips)
-            : [],
-        subwayTimeTags:
-          segment?.subway.length !== 0
-            ? segment.subway.flatMap(subwayline => subwayline.bus_time_tips)
-            : [],
-        cityRailwayTimeTags:
-          segment?.cityRailway.length !== 0
-            ? segment.cityRailway.flatMap(
-                cityRailwayline => cityRailwayline.bus_time_tips
-              )
-            : [],
-      })
-    );
-    const transitsRouteName = routeDetail?.transit_options.segments.map(
-      segment => ({
-        busNames:
-          segment?.bus.length !== 0
-            ? segment.bus.flatMap(busline => busline.name)
-            : [],
-        subwayNames:
-          segment?.subway.length !== 0
-            ? segment.subway.flatMap(subwayline => subwayline.name)
-            : [],
-        cityRailwayNames:
-          segment?.cityRailway.length !== 0
-            ? segment.cityRailway.flatMap(
-                cityRailwayline => cityRailwayline.name
-              )
-            : [],
-        railwayNames:
-          segment?.railway.length !== 0
-            ? segment.railway.flatMap(railwayLine => railwayLine.name)
-            : [],
-      })
-    );
-    const transitsRailways = routeDetail?.transit_options.segments.map(
-      segment => (segment.railway ? segment.railway : {})
-    );
-    const transitsTaxis = routeDetail?.transit_options.segments.map(segment =>
-      segment.taxi ? segment.taxi : {}
-    );
-    const travelMode = routeDetail?.travel_mode || "unknown";
-
-    const busPolyline = polyline?.map(polyline => polyline?.bus?.polyline);
-    const subwayPolyline = polyline?.map(
-      polyline => polyline?.subway?.polyline
-    );
-    const cityRailwayPolyline = polyline?.map(
-      polyline => polyline?.cityRailway?.polyline
-    );
-    const taxiPolyline = polyline?.map(polyline => polyline?.taxi?.polyline);
-    const transitsPolylines = polyline?.map(polyline => ({
-      busPolyline: polyline.segments.map(segment =>
-        segment?.bus ? segment.bus : {}
-      ),
-      subwayPolyline: polyline.segments.map(segment =>
-        segment?.subway ? segment.subway : {}
-      ),
-      cityRailwayPolyline: polyline.segments.map(segment =>
-        segment?.cityRailway ? segment.cityRailway : {}
-      ),
-      taxiPolyline: polyline.segments.map(segment =>
-        segment?.taxi ? segment.taxi : {}
-      ),
+        return {
+          walking: walkingPolyline
+            ? {
+                polyline: walkingPolyline,
+                instructions: walkingInstructions,
+              }
+            : null,
+          bus: segment.bus?.polyline.map(polyline => polyline) || null,
+          subway: segment.subway?.polyline.map(polyline => polyline) || null,
+          cityRailway:
+            segment.cityRailway?.polyline.map(polyline => polyline) || null,
+          railway: segment.railway?.polyline || null,
+          taxi: segment.taxi?.polyline || null,
+        };
+      }),
     }));
 
-    const parsedRoutePolyline = {
-      busPolyline,
-      cityRailwayPolyline,
-      subwayPolyline,
-      taxiPolyline,
-      transitsPolylines,
+    const routeInfo = {
+      startLocation: route.routeDetail?.start_location || null,
+      endLocation: route.routeDetail?.end_location || null,
+      startInfo: route.routeDetail?.startInfo || null,
+      endInfo: route.routeDetail?.endInfo || null,
+      strategy: route.strategy || null,
+
+      plans: transitOptions.map((option, optionIndex) => {
+        const getTransportDetails = (segment, type) => {
+          if (!segment[type]?.length) return null;
+
+          return segment[type].map(transport => ({
+            name: transport.name || null,
+            cost: transport.cost || null,
+            distance: formatDistance(transport.distance) || null,
+            type: transport.type || null,
+            departure_stop: transport.departure_stop || null,
+            arrival_stop: transport.arrival_stop || null,
+            start_time: transport.start_time || null,
+            end_time: transport.end_time || null,
+            busTimeTips: transport.bus_time_tips || null,
+            busTimeTag: transport.bustimetag || null,
+            viaNumbers: transport.via_num || null,
+            ...(type === "bus" && {
+              viaStops: (transport.via_stops || []).map(s => s),
+            }),
+          }));
+        };
+
+        return {
+          transit_fee: option.transit_fee || 0,
+          duration: formatDuration(option.duration) || 0,
+          distance: formatDistance(option.distance) || 0,
+          nightflag: option.nightflag === "1",
+          segments: (option.segments || []).map((segment, segmentIndex) => {
+            const polylineSegment =
+              polylines[optionIndex]?.segments?.[segmentIndex];
+            const walkingInstructions =
+              polylineSegment?.walking?.instructions || [];
+
+            return {
+              walking: segment.walking
+                ? {
+                    origin: segment.walking.origin || null,
+                    destination: segment.walking.destination || null,
+                    distance: formatDistance(segment.walking.distance) || 0,
+                    duration: formatDuration(segment.walking.duration) || 0,
+                    instructions: walkingInstructions,
+                  }
+                : null,
+              bus: getTransportDetails(segment, "bus"),
+              subway: getTransportDetails(segment, "subway"),
+              cityRailway: getTransportDetails(segment, "cityRailway"),
+              railway: getTransportDetails(segment, "railway"),
+              taxi: segment.taxi
+                ? {
+                    distance: formatDistance(segment.taxi.distance) || 0,
+                    duration: formatDuration(segment.taxi.duration) || 0,
+                  }
+                : null,
+            };
+          }),
+        };
+      }),
     };
 
-    const parsedRouteDetail = {
-      strategy,
-      startLocation,
-      endLocation,
-      startInfo,
-      endInfo,
-      transitCount,
-      transitsFee,
-      isAtNights,
-      transitsStepCount,
-      transitsDistance,
-      transitsDuration,
-      transitsStartTime,
-      transitsEndTime,
-      transitsTimeTips,
-      transitsTimeTags,
-      transitsRouteName,
-      transitsRailways,
-      transitsTaxis,
-      travelMode,
-    };
-
-    return { parsedRoutePolyline, parsedRouteDetail };
+    return { polylines, routeInfo };
   });
 }

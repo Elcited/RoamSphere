@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import Button from "@mui/material/Button";
 import AttractionsIcon from "@mui/icons-material/Attractions";
@@ -65,120 +65,131 @@ const ButtonText = styled.p`
 function MapSearchButtons() {
   const [open, setOpen] = useState(false);
   const lastHandlerRef = useRef(null);
-  const { useEndAsCenter } = useSelector(store => store.map);
+  const { useEndAsCenter } = useSelector(state => state.map);
   const location = useLocation();
   const dispatch = useDispatch();
   const { updateQueryAndNavigate } = useQueryUpdater();
   const fallbackCenterLocation = useFallbackCenterLocation();
 
-  const createHandler = ({ mapModeValue, positionType, toPath }) => {
-    return () => {
-      dispatch(setIsRouteRendered(false));
-      dispatch(setMapMode(mapModeValue));
+  const createHandler = useCallback(
+    ({ mapModeValue, positionType, toPath }) => {
+      return () => {
+        dispatch(setIsRouteRendered(false));
+        dispatch(setMapMode(mapModeValue));
 
-      const isFromRoute = /routes|route_detail/.test(location.pathname);
-      const from = isFromRoute ? "fromRoute" : "fromOthers";
-      const state = { fromRoute: isFromRoute };
+        const isFromRoute = /routes|route_detail/.test(location.pathname);
+        const from = isFromRoute ? "fromRoute" : "fromOthers";
+        const state = { fromRoute: isFromRoute };
 
-      const currentUseEndAsCenter = store.getState().map.useEndAsCenter;
-      const currentCenterLocation = store.getState().map.currentCenterLocation;
-      const centerLocation = currentUseEndAsCenter
-        ? currentCenterLocation
-        : fallbackCenterLocation;
-      console.log("Current useEndAsCenter:", useEndAsCenter);
-      console.log("Current fallbackCenterLocation:", fallbackCenterLocation);
-      console.log("Current currentCenterLocation:", currentCenterLocation);
-      console.log("centerLocation", centerLocation);
+        const currentUseEndAsCenter = store.getState().map.useEndAsCenter;
+        const currentCenterLocation =
+          store.getState().map.currentCenterLocation;
+        const centerLocation = currentUseEndAsCenter
+          ? currentCenterLocation
+          : fallbackCenterLocation;
 
-      if (mapModeValue === "attraction") {
-        dispatch(setAttractionCenterLocation(centerLocation));
-      } else if (mapModeValue === "hotel") {
-        dispatch(setHotelCenterLocation(centerLocation));
-      } else if (mapModeValue === "position") {
-        dispatch(setPositionCenterLocation(centerLocation));
-        dispatch(setPositionKeyWord(null));
-        dispatch(setPositionType(positionType));
-      }
+        if (mapModeValue === "attraction") {
+          dispatch(setAttractionCenterLocation(centerLocation));
+        } else if (mapModeValue === "hotel") {
+          dispatch(setHotelCenterLocation(centerLocation));
+        } else if (mapModeValue === "position") {
+          dispatch(setPositionCenterLocation(centerLocation));
+          dispatch(setPositionKeyWord(null));
+          dispatch(setPositionType(positionType));
+        }
 
-      updateQueryAndNavigate(
-        {
-          ...(mapModeValue === "attraction" && {
-            attractionCenterLocation: centerLocation,
-          }),
-          ...(mapModeValue === "hotel" && {
-            hotelCenterLocation: centerLocation,
-          }),
-          ...(mapModeValue === "position" && {
-            positionCenterLocation: centerLocation,
-          }),
-          mapmode: mapModeValue,
-          from,
-        },
-        toPath,
-        { replace: true, state, clearOthers: true }
-      );
+        updateQueryAndNavigate(
+          {
+            ...(mapModeValue === "attraction" && {
+              attractionCenterLocation: centerLocation,
+            }),
+            ...(mapModeValue === "hotel" && {
+              hotelCenterLocation: centerLocation,
+            }),
+            ...(mapModeValue === "position" && {
+              positionCenterLocation: centerLocation,
+            }),
+            mapmode: mapModeValue,
+            from,
+          },
+          toPath,
+          { replace: true, state, clearOthers: true }
+        );
 
-      setOpen(false);
-    };
-  };
+        setOpen(false);
+      };
+    },
+    [
+      dispatch,
+      fallbackCenterLocation,
+      location.pathname,
+      updateQueryAndNavigate,
+    ]
+  );
 
-  const buttonConfigs = [
-    {
-      key: "attraction",
-      label: "景点",
-      icon: <AttractionsIcon fontSize="large" />,
-      handler: createHandler({
-        mapModeValue: "attraction",
-        toPath: "/map/attractions",
-      }),
-    },
-    {
-      key: "hotel",
-      label: "酒店",
-      icon: <HotelIcon fontSize="large" />,
-      handler: createHandler({ mapModeValue: "hotel", toPath: "/map/hotels" }),
-    },
-    {
-      key: "restaurant",
-      label: "餐厅",
-      icon: <RestaurantIcon fontSize="large" />,
-      handler: createHandler({
-        mapModeValue: "position",
-        positionType: "050100",
-        toPath: "/map/positions",
-      }),
-    },
-    {
-      key: "gas",
-      label: "加油站",
-      icon: <LocalGasStationIcon fontSize="large" />,
-      handler: createHandler({
-        mapModeValue: "position",
-        positionType: "010100",
-        toPath: "/map/positions",
-      }),
-    },
-    {
-      key: "atm",
-      label: "ATM机",
-      icon: <AtmIcon fontSize="large" />,
-      handler: createHandler({
-        mapModeValue: "position",
-        positionType: "160300",
-        toPath: "/map/positions",
-      }),
-    },
-    {
-      key: "pharmacy",
-      label: "药店",
-      icon: <MedicationIcon fontSize="large" />,
-      handler: createHandler({
-        mapModeValue: "position",
-        positionType: "090601",
-        toPath: "/map/positions",
-      }),
-    },
-  ];
+  const buttonConfigs = useMemo(
+    () => [
+      {
+        key: "attraction",
+        label: "景点",
+        icon: <AttractionsIcon fontSize="large" />,
+        handler: createHandler({
+          mapModeValue: "attraction",
+          toPath: "/map/attractions",
+        }),
+      },
+      {
+        key: "hotel",
+        label: "酒店",
+        icon: <HotelIcon fontSize="large" />,
+        handler: createHandler({
+          mapModeValue: "hotel",
+          toPath: "/map/hotels",
+        }),
+      },
+      {
+        key: "restaurant",
+        label: "餐厅",
+        icon: <RestaurantIcon fontSize="large" />,
+        handler: createHandler({
+          mapModeValue: "position",
+          positionType: "050100",
+          toPath: "/map/positions",
+        }),
+      },
+      {
+        key: "gas",
+        label: "加油站",
+        icon: <LocalGasStationIcon fontSize="large" />,
+        handler: createHandler({
+          mapModeValue: "position",
+          positionType: "010100",
+          toPath: "/map/positions",
+        }),
+      },
+      {
+        key: "atm",
+        label: "ATM机",
+        icon: <AtmIcon fontSize="large" />,
+        handler: createHandler({
+          mapModeValue: "position",
+          positionType: "160300",
+          toPath: "/map/positions",
+        }),
+      },
+      {
+        key: "pharmacy",
+        label: "药店",
+        icon: <MedicationIcon fontSize="large" />,
+        handler: createHandler({
+          mapModeValue: "position",
+          positionType: "090601",
+          toPath: "/map/positions",
+        }),
+      },
+    ],
+    [createHandler]
+  );
 
   useEffect(() => {
     if (lastHandlerRef.current) {

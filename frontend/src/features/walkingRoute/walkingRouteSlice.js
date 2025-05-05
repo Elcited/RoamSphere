@@ -8,6 +8,7 @@ const initialState = {
   routesNavigations: null,
   routesOrientations: null,
   routesWalkTypes: null,
+  selectedRoute: null,
 };
 
 const walkingRouteSlice = createSlice({
@@ -35,6 +36,15 @@ const walkingRouteSlice = createSlice({
     setRoutesWalkTypes(state, action) {
       state.routesWalkTypes = action.payload;
     },
+    setIsWalkingLoading(state, action) {
+      state.isLoading = action.payload;
+    },
+    setIsWalkingFetched(state, action) {
+      state.isFetched = action.payload;
+    },
+    setWalkingSelectedRoute(state, action) {
+      state.selectedRoute = action.payload;
+    },
   },
 });
 
@@ -46,6 +56,7 @@ export const {
   setRoutesPolylines,
   setRoutesWalkTypes,
   setRoutesOrientations,
+  setWalkingSelectedRoute,
 } = walkingRouteSlice.actions;
 
 export default walkingRouteSlice.reducer;
