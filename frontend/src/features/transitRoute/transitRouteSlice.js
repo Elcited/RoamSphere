@@ -24,12 +24,7 @@ const transitRouteSlice = createSlice({
   },
 });
 
-export const {
-  setRoutesInfo,
-  setTransitSelectedRoute,
-  clearTransitRoutes,
-  setIsTransitLoading,
-  setIsTransitFetched,
-} = transitRouteSlice.actions;
+export const { setRoutesInfo, setTransitSelectedRoute, clearTransitRoutes } =
+  transitRouteSlice.actions;
 
 export default transitRouteSlice.reducer;

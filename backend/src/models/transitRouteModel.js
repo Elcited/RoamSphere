@@ -139,8 +139,8 @@ const railwaySchema = new Schema(
     railway_spaces: [
       {
         seat_type: { type: String },
-        price: { type: Number },
         seat_name: { type: String },
+        price: { type: Number },
       },
     ],
   },
@@ -154,8 +154,8 @@ const taxiSchema = new Schema(
     price: { type: Number },
     drivetime: { type: Number },
     startpoint: { type: [Number] },
-    startname: { type: [Number] },
-    endpoint: { type: String },
+    startname: { type: String },
+    endpoint: { type: [Number] },
     endname: { type: String },
   },
   { _id: false }

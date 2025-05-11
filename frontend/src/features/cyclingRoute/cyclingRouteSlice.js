@@ -7,8 +7,9 @@ const initialState = {
   routesInstructions: null,
   routesNavigations: null,
   routesOrientations: null,
+  routesWalkTypes: null,
   routesStepDistance: null,
-  selectedRoute: null,
+  selectedRoute: 0,
 };
 
 const cyclingRouteSlice = createSlice({
@@ -30,6 +31,9 @@ const cyclingRouteSlice = createSlice({
     setRoutesNavigations(state, action) {
       state.routesNavigations = action.payload;
     },
+    setRoutesWalkTypes(state, action) {
+      state.routesWalkTypes = action.payload;
+    },
     setRoutesOrientations(state, action) {
       state.routesOrientations = action.payload;
     },
@@ -48,6 +52,7 @@ export const {
   setRoutesInstructions,
   setRoutesNavigations,
   setRoutesPolylines,
+  setRoutesWalkTypes,
   setRoutesStepDistance,
   setRoutesOrientations,
   setCyclingSelectedRoute,

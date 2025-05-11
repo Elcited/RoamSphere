@@ -5,6 +5,9 @@ import { setRoutesInfo } from "../transitRoute/transitRouteSlice";
 export default function useSyncTransitRouteData(parsedRoutes, shouldRender) {
   const dispatch = useDispatch();
 
+  console.log("useSyncTransitRouteData", parsedRoutes);
+  console.log("useSyncTransitRouteData shouldDispatch", shouldRender);
+
   useEffect(() => {
     if (!shouldRender || !parsedRoutes?.length) return;
 

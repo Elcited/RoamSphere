@@ -29,7 +29,7 @@ export default function useRenderSimplePolylines(
         const path = coords.map(coord => new AMap.LngLat(coord[0], coord[1]));
         const polyline = new AMap.Polyline({
           path,
-          strokeColor,
+          strokeColor: isSelected ? strokeColor : "#999",
           strokeWeight,
           lineJoin: "round",
         });

@@ -2,6 +2,7 @@ import formatDuration from "./formatDuration";
 import formatDistance from "./formatDistance";
 
 export default function parseWalkingRouteResult(routes) {
+  console.log("parseWalkingRouteResult", routes);
   return routes.map(route => {
     const strategy = route.strategy;
     const polyline = route.polyline;
@@ -28,12 +29,14 @@ export default function parseWalkingRouteResult(routes) {
     const navigations = polyline?.navigations || [];
     const orientations = polyline?.orientations || [];
     const walkTypes = polyline?.walkTypes || [];
+    const stepDistance = polyline?.step_distance || [];
 
     const parsedRoutePolyline = {
       polylinesForRenderRoutes,
       polylinesForRenderDetails,
       instructions,
       navigations,
+      stepDistance,
       orientations,
       walkTypes,
     };

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import parseTransitPolylines from "../../utils/parseTransitPolylines";
 
 export default function useRenderTransitPolylines(
   parsedRoutes,
@@ -10,40 +11,53 @@ export default function useRenderTransitPolylines(
   strokeColor = "#1677FF",
   strokeWeight = 5
 ) {
+  const colorsByType = {
+    walking: "#73d13d",
+    bus: "#1677FF",
+    subway: "#722ed1",
+    cityRailway: "#172090",
+    taxi: "#247755",
+  };
+
   useEffect(() => {
     if (!shouldRender || !map || !AMap || !parsedRoutes?.length) return;
     console.log("Transit parsedPolylines", parsedRoutes);
+    console.log("selectedRouteIndex", selectedRouteIndex);
 
     if (polylineRef.current.length > 0) {
       polylineRef.current.forEach(p => map.remove(p));
       polylineRef.current = [];
     }
 
-    const allPolylines = [];
+    const allPolylines = parsedRoutes.map(route => route.polylines);
+    const parsedPolylines = parseTransitPolylines(allPolylines);
 
-    parsedRoutes.forEach((route, index) => {
-      const segments = route.parsedRoutePolylines?.segments || [];
-      segments.forEach(segment => {
-        const coords = segment.path;
-        if (!coords?.length) return;
-
+    parsedPolylines.forEach(strategyGroup => {
+      strategyGroup.forEach((route, index) => {
         const isSelected = index === selectedRouteIndex;
 
-        const path = coords.map(coord => new AMap.LngLat(coord[0], coord[1]));
-        const polyline = new AMap.Polyline({
-          path,
-          strokeColor: segment.color || strokeColor,
-          strokeWeight,
-          lineJoin: "round",
-        });
+        console.log("isSelected", isSelected);
 
-        map.add(polyline);
-        allPolylines.push(polyline);
+        route.segments.forEach(segment => {
+          segment.forEach(s => {
+            const color = colorsByType[s.type] || strokeColor;
+            const path = s.polylines.map(p => new AMap.LngLat(p.lng, p.lat));
+
+            const polyline = new AMap.Polyline({
+              path,
+              strokeColor: isSelected ? color : "#ccc",
+              strokeWeight: isSelected ? strokeWeight : 3,
+              strokeOpacity: isSelected ? 1 : 0.5,
+              zIndex: isSelected ? 80 : 10,
+              lineJoin: "round",
+            });
+
+            map.add(polyline);
+            polylineRef.current.push(polyline);
+          });
+        });
       });
     });
-
-    polylineRef.current = allPolylines;
-    map.setFitView(allPolylines);
   }, [
     parsedRoutes,
     selectedRouteIndex,

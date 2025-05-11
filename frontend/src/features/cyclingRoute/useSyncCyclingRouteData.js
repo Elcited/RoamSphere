@@ -8,10 +8,13 @@ import {
   setRoutesPolylines,
   setRoutesStepDistance,
   setRoutesOrientations,
+  setRoutesWalkTypes,
 } from "./cyclingRouteSlice";
 
 export default function useSyncCyclingRouteData(parsedRoutes, shouldDispatch) {
   const dispatch = useDispatch();
+  console.log("useSyncCyclingRouteData", parsedRoutes);
+  console.log("useSyncCyclingRouteData shouldDispatch", shouldDispatch);
 
   useEffect(() => {
     if (!shouldDispatch || !parsedRoutes?.length) return;
@@ -22,6 +25,7 @@ export default function useSyncCyclingRouteData(parsedRoutes, shouldDispatch) {
     const polylines = [];
     const navigations = [];
     const orientations = [];
+    const walkTypes = [];
     const stepDistances = [];
 
     parsedRoutes.forEach(route => {
@@ -31,6 +35,7 @@ export default function useSyncCyclingRouteData(parsedRoutes, shouldDispatch) {
       instructions.push(polyline?.instructions);
       polylines.push(polyline?.polylinesForRenderDetails);
       navigations.push(polyline?.navigations);
+      walkTypes.push(polyline?.walkTypes);
       orientations.push(polyline?.orientations);
       stepDistances.push(polyline?.stepDistance);
     });
@@ -40,6 +45,7 @@ export default function useSyncCyclingRouteData(parsedRoutes, shouldDispatch) {
     dispatch(setRoutesInstructions(instructions));
     dispatch(setRoutesPolylines(polylines));
     dispatch(setRoutesNavigations(navigations));
+    dispatch(setRoutesWalkTypes(walkTypes));
     dispatch(setRoutesOrientations(orientations));
     dispatch(setRoutesStepDistance(stepDistances));
   }, [parsedRoutes, shouldDispatch, dispatch]);

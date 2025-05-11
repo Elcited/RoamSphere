@@ -14,6 +14,8 @@ import {
 
 export default function useSyncDrivingRouteData(drivingRoutes, shouldDispatch) {
   const dispatch = useDispatch();
+  console.log("useSyncDrivingRouteData", drivingRoutes);
+  console.log("useSyncDrivingRouteData shouldDispatch", shouldDispatch);
 
   useEffect(() => {
     if (!shouldDispatch || !drivingRoutes?.length) return;

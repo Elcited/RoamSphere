@@ -10,7 +10,7 @@ const initialState = {
   routesRoadCities: null,
   routesRoadDistance: null,
   routesRoadStatus: null,
-  selectedRoute: null,
+  selectedRoute: 0,
 };
 
 const drivingRoute = createSlice({

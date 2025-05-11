@@ -5,6 +5,7 @@ import { setTransitSelectedRoute } from "../features/transitRoute/transitRouteSl
 import { setCyclingSelectedRoute } from "../features/cyclingRoute/cyclingRouteSlice";
 import { setWalkingSelectedRoute } from "../features/walkingRoute/walkingRouteSlice";
 import { useDispatch } from "react-redux";
+import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem;
@@ -53,9 +54,17 @@ const DetailButton = styled.button`
   padding: 0.9rem;
 `;
 
-function RoutesDisplayItem({ routeInfo, index, travelMode, startPath }) {
-  const { distance, duration } = routeInfo;
+function RoutesDisplayItem({
+  routeInfo,
+  index,
+  travelMode,
+  startPath,
+  selectedIndex,
+  setSelectedIndex,
+}) {
+  const { distance, duration, nightflag } = routeInfo;
   const dispatch = useDispatch();
+  const { updateQueryAndNavigate } = useQueryUpdater();
 
   const routeSettersByMode = {
     driving: setDrivingSelectedRoute,
@@ -64,12 +73,26 @@ function RoutesDisplayItem({ routeInfo, index, travelMode, startPath }) {
     walking: setWalkingSelectedRoute,
   };
 
-  const handleClick = travelMode => {
+  const handleClick = (travelMode, index) => {
+    console.log(travelMode, index);
     dispatch(routeSettersByMode[travelMode](index));
+    setSelectedIndex(index);
   };
 
+  const handleButtonClick = () => {
+    updateQueryAndNavigate(
+      {
+        travelMode,
+      },
+      "/map/routes/route_overview/route_detail",
+      {}
+    );
+  };
+
+  const isSelected = selectedIndex === index;
+
   return (
-    <Container onClick={handleClick}>
+    <Container onClick={() => handleClick(travelMode, index)}>
       <RouteInfoOverviewBox>
         <RouteInfoBox>
           <RouteInfoItem>
@@ -84,17 +107,20 @@ function RoutesDisplayItem({ routeInfo, index, travelMode, startPath }) {
               <span>{duration}</span>
               <span>（如果路途畅通）</span>
             </Item>
+            <Item>{nightflag ? <span>夜班车</span> : null}</Item>
           </RouteInfoItem>
           <RouteInfoItem>
             <Item>{duration}</Item>
             <Item>{distance}</Item>
           </RouteInfoItem>
         </RouteInfoBox>
-        <DetailButtonBox>
-          <div>
-            <DetailButton>详情</DetailButton>
-          </div>
-        </DetailButtonBox>
+        {isSelected ? (
+          <DetailButtonBox>
+            <div>
+              <DetailButton onClick={handleButtonClick}>详情</DetailButton>
+            </div>
+          </DetailButtonBox>
+        ) : null}
       </RouteInfoOverviewBox>
     </Container>
   );

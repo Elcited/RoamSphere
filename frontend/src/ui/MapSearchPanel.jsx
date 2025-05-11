@@ -1,10 +1,8 @@
 import styled from "styled-components";
-
 import MapSearchInput from "./MapSearchInput";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
-import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsSearchPanelExpand } from "../features/map/mapSlice";
 
@@ -33,10 +31,6 @@ const InputBox = styled.div`
 function MapSearchPanel({ children }) {
   const { isSearchPanelExpand } = useSelector(store => store.map);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    console.log(isSearchPanelExpand);
-  }, [isSearchPanelExpand]);
 
   return (
     <PanelWrapper>

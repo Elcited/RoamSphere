@@ -13,6 +13,7 @@ const Container = styled.div`
 
 function RoutesDisplay() {
   const dispatch = useDispatch();
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const { travelMode, isRoutesLoading, isRoutesSuccess } = useSelector(
     store => store.route
   );
@@ -26,7 +27,6 @@ function RoutesDisplay() {
     routesStepDistance,
     rawSlice,
   } = useGetRouteInfo(travelMode);
-  console.log(`${travelMode} routesInfo`, routesInfo);
 
   const startPaths = routesInfo.map(
     routeInfo =>
@@ -37,15 +37,29 @@ function RoutesDisplay() {
 
   return (
     <Container>
-      {routesInfo.map((route, index) => (
-        <RoutesDisplayItem
-          key={route.strategy}
-          index={index}
-          routeInfo={route}
-          travelMode={travelMode}
-          startPath={startPaths[index]}
-        />
-      ))}
+      {travelMode === "transit"
+        ? routesInfo[0]?.plans?.map((plan, index) => (
+            <RoutesDisplayItem
+              key={plan.strategy || index}
+              index={index}
+              routeInfo={plan}
+              travelMode={travelMode}
+              startPath={startPaths[0]}
+              selectedIndex={selectedIndex}
+              setSelectedIndex={setSelectedIndex}
+            />
+          ))
+        : routesInfo.map((route, index) => (
+            <RoutesDisplayItem
+              key={route.strategy}
+              index={index}
+              routeInfo={route}
+              travelMode={travelMode}
+              startPath={startPaths[index]}
+              selectedIndex={selectedIndex}
+              setSelectedIndex={setSelectedIndex}
+            />
+          ))}
     </Container>
   );
 }

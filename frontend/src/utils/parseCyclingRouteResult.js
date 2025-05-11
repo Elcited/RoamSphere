@@ -2,14 +2,11 @@ import formatDistance from "./formatDistance";
 import formatDuration from "./formatDuration";
 
 export default function parseCyclingRouteResult(routes) {
+  console.log("parseCyclingRouteResult routes", routes);
   return routes.map(route => {
     const strategy = route.strategy;
     const polyline = route.polyline;
     const routeDetail = route.routeDetail;
-
-    console.log(polyline);
-    console.log(routeDetail);
-
     const startLocation = routeDetail?.start_location || {};
     const endLocation = routeDetail?.end_location || {};
     const startInfo = routeDetail?.startInfo;
@@ -17,7 +14,6 @@ export default function parseCyclingRouteResult(routes) {
     const duration = formatDuration(routeDetail?.duration);
     const distance = formatDistance(routeDetail?.distance);
     const travelMode = routeDetail?.travel_mode;
-
     const polylinesForRenderRoutes =
       polyline?.polylines
         ?.flatMap(polyline => polyline.split(";"))
@@ -27,6 +23,7 @@ export default function parseCyclingRouteResult(routes) {
     const instructions = polyline?.instructions || [];
     const navigations = polyline?.navigations || [];
     const orientations = polyline?.orientations || [];
+    const walkTypes = polyline?.walkTypes || [];
     const stepDistance = polyline?.step_distance || [];
 
     const parsedRoutePolyline = {
@@ -36,6 +33,7 @@ export default function parseCyclingRouteResult(routes) {
       navigations,
       orientations,
       stepDistance,
+      walkTypes,
     };
 
     const parsedRouteDetail = {

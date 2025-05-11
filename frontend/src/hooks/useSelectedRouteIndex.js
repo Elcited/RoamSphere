@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 
-export function useSelectedRouteIndex(travelMode) {
+export default function useSelectedRouteIndex(travelMode) {
   return useSelector(state => {
     switch (travelMode) {
       case "driving":

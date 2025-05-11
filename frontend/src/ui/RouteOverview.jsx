@@ -6,6 +6,7 @@ import RouteDestinationRecommand from "./RouteDestinationRecommand";
 import { useDispatch } from "react-redux";
 
 const Container = styled.div`
+  width: 40rem;
   background-color: #e3e3e3;
   display: flex;
   flex-direction: column;

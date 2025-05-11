@@ -11,8 +11,6 @@ const Container = styled.div`
   background-color: #fff;
 `;
 
-const CardsContainer = styled.div``;
-
 const ITEMS_PER_PAGE = 5;
 
 function PlaceDetails() {
@@ -47,11 +45,9 @@ function PlaceDetails() {
 
   return (
     <Container>
-      <CardsContainer>
-        {currentItems.map(item => (
-          <PlaceDetailCard key={item.position_id} item={item} />
-        ))}
-      </CardsContainer>
+      {currentItems.map((item, index) => (
+        <PlaceDetailCard key={`${item.position_id}-${index}`} item={item} />
+      ))}
       <Pagination
         count={pageCount}
         page={page}

@@ -6,7 +6,6 @@ export default function useSingleGeocoder(AMap, address, isReady = true) {
   useEffect(() => {
     if (!AMap || !address || !isReady) return;
 
-    // 如果 address 是一个长度为 2 的数组，直接返回
     if (Array.isArray(address) && address.length === 2) {
       setLocation(address);
       console.log("直接返回地址：", address);

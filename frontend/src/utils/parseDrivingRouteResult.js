@@ -2,6 +2,7 @@ import formatDuration from "./formatDuration";
 import formatDistance from "./formatDistance";
 
 export default function parseDrivingRouteResult(routes) {
+  console.log("parseDrivingRouteResult routes", routes);
   return routes.map(route => {
     const strategy = route.strategy;
     const polyline = route.polyline;

@@ -25,8 +25,6 @@ function generateRouteHashes({
       endLat,
     };
 
-    console.log(s, mode, startLng, startLat, endLng, endLat);
-
     const str = JSON.stringify(raw);
     const hash = crypto.createHash("sha256").update(str).digest("hex");
     return { strategy: s, hash };
@@ -54,10 +52,10 @@ function getUrl(
       url = `https://restapi.amap.com/v5/direction/transit/integrated?origin=${startLng},${startLat}&destination=${endLng},${endLat}&key=${API_REQUEST_KEY}&city1=${city1}&city2=${city2}&show_fields=navi,cost,polyline`;
       break;
     case "walking":
-      url = `https://restapi.amap.com/v5/direction/${mode}?isindoor=0&origin=${startLng},${startLat}&destination=${endLng},${endLat}&show_fields=navi,cost,polyline&key=${API_REQUEST_KEY}`;
+      url = `https://restapi.amap.com/v5/direction/${mode}?isindoor=0&origin=${startLng},${startLat}&destination=${endLng},${endLat}&show_fields=navi,cost,polyline&alternative_route=3&key=${API_REQUEST_KEY}`;
       break;
     case "cycling":
-      url = `https://restapi.amap.com/v5/direction/bicycling?origin=${startLng},${startLat}&destination=${endLng},${endLat}&key=${API_REQUEST_KEY}&show_fields=navi,cost,polyline`;
+      url = `https://restapi.amap.com/v5/direction/bicycling?origin=${startLng},${startLat}&destination=${endLng},${endLat}&key=${API_REQUEST_KEY}&show_fields=navi,cost,polyline&alternative_route=3`;
       break;
     default:
       throw new Error("Invalid mode");
@@ -184,6 +182,10 @@ function formatWalkingRouteResultDB(
 }
 
 function formatWalkingRouteResultRedis(routeDataFromAPI) {
+  console.log(
+    "routeDataFromAPI.route.paths",
+    routeDataFromAPI.route.paths.length
+  );
   const polylines = routeDataFromAPI.route.paths[0].steps.map(
     step => step.polyline
   );
@@ -200,6 +202,10 @@ function formatWalkingRouteResultRedis(routeDataFromAPI) {
     step => step.navi.action
   );
 
+  const step_distance = routeDataFromAPI.route.paths[0].steps.map(
+    step => step.step_distance
+  );
+
   const walkTypes = routeDataFromAPI.route.paths[0].steps.map(
     step => step.navi.walk_type
   );
@@ -208,6 +214,7 @@ function formatWalkingRouteResultRedis(routeDataFromAPI) {
     polylines,
     instructions,
     orientations,
+    step_distance,
     navigations,
     walkTypes,
   };
@@ -232,9 +239,8 @@ function formatTransitRouteResultDB(
   const start_lnglat = routeDataFromAPI.route.origin;
   const end_lnglat = routeDataFromAPI.route.destination;
 
-  const transit_options = (routeDataFromAPI.route.transits || [])
-    .slice(0, 5)
-    .map(transit => {
+  const transit_options = (routeDataFromAPI.route.transits || []).map(
+    transit => {
       const segments = (transit.segments || [])
         .map(segment => {
           let segmentData = {};
@@ -372,20 +378,16 @@ function formatTransitRouteResultDB(
                 arrival_time: segment.railway.arrival_stop.time,
                 isFinalStop: segment.railway.arrival_stop.end,
               },
-              railway_spaces: [segment.railway.spaces.map(space => space)],
+              railway_spaces: segment.railway.spaces.map(space => ({
+                seat_type: space.code.slice(2),
+                seat_name: space.code,
+                price: parseFloat(space.cost),
+              })),
             };
-            console.log(
-              "departure_stop location",
-              segment.railway.departure_stop.location
-            );
-            console.log(
-              "arrival_stop location",
-              segment.railway.arrival_stop.location
-            );
           }
 
           if (segment.taxi) {
-            segment.taxi = {
+            segmentData.taxi = {
               distance: segment.taxi.distance,
               price: segment.taxi.price,
               drivetime: segment.taxi.drivetime,
@@ -408,7 +410,8 @@ function formatTransitRouteResultDB(
         nightflag: transit.nightflag,
         segments,
       };
-    });
+    }
+  );
 
   const routeDetail = {
     start_location: {
@@ -487,12 +490,6 @@ function formatTransitRouteResultRedis(routeDataFromAPI) {
         }
       }
 
-      if (segment.railway) {
-        segmentData.railway = {
-          polyline: segment.railway.polyline?.polyline,
-        };
-      }
-
       if (segment.taxi) {
         segmentData.taxi = {
           polyline: segment.taxi.polyline?.polyline,
@@ -565,6 +562,10 @@ function formatCyclingRouteResultRedis(routeDataFromAPI) {
     step => step.polyline
   );
 
+  const walkTypes = routeDataFromAPI.route.paths[0].steps.map(
+    step => step.navi.walk_type
+  );
+
   const step_distance = routeDataFromAPI.route.paths[0].steps.map(
     step => step.step_distance
   );
@@ -576,6 +577,7 @@ function formatCyclingRouteResultRedis(routeDataFromAPI) {
   return {
     instructions,
     orientations,
+    walkTypes,
     polylines,
     step_distance,
     navigations,

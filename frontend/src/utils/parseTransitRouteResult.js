@@ -27,7 +27,6 @@ export default function parseTransitRouteResult(routes = []) {
           subway: segment.subway?.polyline.map(polyline => polyline) || null,
           cityRailway:
             segment.cityRailway?.polyline.map(polyline => polyline) || null,
-          railway: segment.railway?.polyline || null,
           taxi: segment.taxi?.polyline || null,
         };
       }),
@@ -51,12 +50,12 @@ export default function parseTransitRouteResult(routes = []) {
             type: transport.type || null,
             departure_stop: transport.departure_stop || null,
             arrival_stop: transport.arrival_stop || null,
-            start_time: transport.start_time || null,
-            end_time: transport.end_time || null,
+            start_time: transport.start_time ?? null,
+            end_time: transport.end_time ?? null,
             busTimeTips: transport.bus_time_tips || null,
             busTimeTag: transport.bustimetag || null,
             viaNumbers: transport.via_num || null,
-            ...(type === "bus" && {
+            ...(["bus", "subway", "cityRailway"].includes(type) && {
               viaStops: (transport.via_stops || []).map(s => s),
             }),
           }));
@@ -86,11 +85,26 @@ export default function parseTransitRouteResult(routes = []) {
               bus: getTransportDetails(segment, "bus"),
               subway: getTransportDetails(segment, "subway"),
               cityRailway: getTransportDetails(segment, "cityRailway"),
-              railway: getTransportDetails(segment, "railway"),
+              railway: segment.railway
+                ? {
+                    distance: formatDistance(segment.railway.distance),
+                    duration: formatDuration(segment.railway.duration),
+                    type: segment.railway.type,
+                    name: segment.railway.name,
+                    trip: segment.railway.trip,
+                    arrivalStop: segment.railway.arrival_stop,
+                    depatureStop: segment.railway.depature_stop,
+                    railwaySpaces: segment.railway.railway_spaces,
+                  }
+                : null,
               taxi: segment.taxi
                 ? {
                     distance: formatDistance(segment.taxi.distance) || 0,
-                    duration: formatDuration(segment.taxi.duration) || 0,
+                    duration: formatDuration(segment.taxi.drivetime) || 0,
+                    startname: segment.taxi.startname || "",
+                    endname: segment.taxi.endname || "",
+                    startpoint: segment.taxi.startpoint || "",
+                    endpoint: segment.taxi.endpoint || "",
                   }
                 : null,
             };

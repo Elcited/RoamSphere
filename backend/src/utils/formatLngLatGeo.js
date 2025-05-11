@@ -1,35 +1,51 @@
 const API_REQUEST_KEY = process.env.API_REQUEST_KEY;
 
+const withRetry = async (fn, retryTimes = 1, delayMs = 200) => {
+  let lastError;
+  for (let attempt = 0; attempt <= retryTimes; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (attempt < retryTimes) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        console.warn(`第 ${attempt + 1} 次重试中...`);
+      }
+    }
+  }
+  throw lastError;
+};
+
 const fetchGeoData = async (lng, lat) => {
-  try {
+  const fn = async () => {
     const response = await fetch(
       `https://restapi.amap.com/v3/geocode/regeo?location=${lng},${lat}&key=${API_REQUEST_KEY}`
     );
     if (!response.ok) {
-      throw new Error(`高德API请求失败，状态码: ${response.status}`);
+      throw new Error(`HTTP 状态码 ${response.status}`);
     }
     const data = await response.json();
     if (!data || data.status !== "1") {
-      throw new Error("高德API返回无效数据");
+      throw new Error(`返回异常数据: ${JSON.stringify(data)}`);
     }
-    return data;
+    return { success: true, ...data };
+  };
+
+  try {
+    return await withRetry(fn, 1, 300);
   } catch (error) {
-    throw new Error(`经纬度转地址出错: ${error.message}`);
+    console.error(`高德API最终失败: ${error.message}`);
+    return { success: false, lng, lat };
   }
 };
 
 const formatLngLatGeo = async (startLng, startLat, endLng, endLat) => {
-  try {
-    const [startInfo, endInfo] = await Promise.all([
-      fetchGeoData(startLng, startLat),
-      fetchGeoData(endLng, endLat),
-    ]);
+  const [startInfo, endInfo] = await Promise.all([
+    fetchGeoData(startLng, startLat),
+    fetchGeoData(endLng, endLat),
+  ]);
 
-    return { startInfo, endInfo };
-  } catch (error) {
-    console.error(error.message);
-    throw new Error("经纬度转地址出错了！");
-  }
+  return { startInfo, endInfo };
 };
 
 module.exports = formatLngLatGeo;

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import useGetRoutes from "../../features/routeDetail/useGetRoutes";
 import { useDispatch } from "react-redux";
 import { setIsRoutesLoading, setIsRoutesSuccess } from "./routeSlice";
@@ -6,7 +6,7 @@ import getParserByTravelMode from "../../utils/getParserByTravelMode";
 import useSyncRouteData from "./useSyncRouteData";
 import useRenderTransitPolylines from "../transitRoute/useRenderTransitPolylines";
 import useRenderSimplePolylines from "./useRenderSimplePolylines";
-import { useSelectedRouteIndex } from "../../hooks/useSelectedRoute";
+import useSelectedRouteIndex from "../../hooks/useSelectedRouteIndex";
 
 export default function useRenderRoutes(
   AMap,
@@ -26,13 +26,10 @@ export default function useRenderRoutes(
   } = useGetRoutes(startLocation, endLocation, AMap, map, mapMode, travelMode);
   console.log(routeData);
 
-  if (isLoading) {
-    dispatch(setIsRoutesLoading(true));
-    dispatch(setIsRoutesSuccess(false));
-  } else {
-    dispatch(setIsRoutesLoading(false));
-    dispatch(setIsRoutesSuccess(true));
-  }
+  useEffect(() => {
+    dispatch(setIsRoutesLoading(isLoading));
+    dispatch(setIsRoutesSuccess(!isLoading && isSuccess));
+  }, [dispatch, isLoading, isSuccess]);
 
   const shouldRender = isSuccess && mapMode === "route";
 

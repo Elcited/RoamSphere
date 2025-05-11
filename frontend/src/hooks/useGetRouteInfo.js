@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import getCommonRouteFields from "../utils/getCommonFields";
 
 export default function useGetRouteInfo(travelMode) {
   const driving = useSelector(state => state.drivingRoute);
@@ -9,32 +10,30 @@ export default function useGetRouteInfo(travelMode) {
   switch (travelMode) {
     case "driving":
       return {
-        routesInfo: driving.routesInfo ?? [],
-        routesPolylines: driving.routesPolylines ?? [],
-        routesInstructions: driving.routesInstructions ?? [],
+        ...getCommonRouteFields(driving),
+        routesRoadCities: driving.routesRoadCities ?? [],
+        routesRoadStatus: driving.routesRoadStatus ?? [],
         routesRoadDistance: driving.routesRoadDistance ?? [],
         rawSlice: driving,
       };
     case "walking":
       return {
-        routesInfo: walking.routesInfo ?? [],
-        routesPolylines: walking.routesPolylines ?? [],
-        routesInstructions: walking.routesInstructions ?? [],
+        ...getCommonRouteFields(walking),
         routesWalkTypes: walking.routesWalkTypes ?? [],
+        routesStepDistance: walking.routesStepDistance ?? [],
         rawSlice: walking,
       };
     case "cycling":
       return {
-        routesInfo: cycling.routesInfo ?? [],
-        routesPolylines: cycling.routesPolylines ?? [],
-        routesInstructions: cycling.routesInstructions ?? [],
+        ...getCommonRouteFields(cycling),
         routesStepDistance: cycling.routesStepDistance ?? [],
+        routesWalkTypes: cycling.routesWalkTypes ?? [],
         rawSlice: cycling,
       };
     case "transit":
       return {
         routesInfo: transit.routeList ?? [],
-        selectedIndex: transit.selectedIndex,
+        selectedRoute: transit.selectedRoute,
         rawSlice: transit,
       };
     default:
