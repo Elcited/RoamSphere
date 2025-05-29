@@ -11,6 +11,13 @@ export default function useGetPositions(
 ) {
   const radius = 10000;
 
+  console.log(
+    positionKeyWord,
+    positionRegion,
+    positionCoordinate,
+    positionType
+  );
+
   return useQuery({
     queryKey: [
       "positions",

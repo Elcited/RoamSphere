@@ -1,6 +1,7 @@
 export default function parseHotelsResult(hotelsList) {
   const parsedHotelResult = hotelsList?.map(hotel => {
     return {
+      id: hotel._id,
       position_id: hotel.position_id,
       name: hotel.name,
       address: hotel.address,

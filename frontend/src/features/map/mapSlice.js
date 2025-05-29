@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   isMapLoading: false,
-  isSearchPanelExpand: false,
   mapMode: "",
   currentCenterLocation: "",
   fallbackCenterLocation: "北京",
@@ -13,6 +12,8 @@ const initialState = {
   scaleOpen: false,
   compassOpen: false,
   zoomOpen: false,
+  clickedLngLat: null,
+  hasSearchResult: false,
 };
 
 const mapSlice = createSlice({
@@ -22,15 +23,12 @@ const mapSlice = createSlice({
     setMapState(state, action) {
       state.isMapLoading = action.payload;
     },
-    setIsSearchPanelExpand(state, action) {
-      state.isSearchPanelExpand = action.payload;
-    },
+
     setMapMode(state, action) {
       state.mapMode = action.payload;
     },
     setCurrentCenterLocation(state, action) {
       state.currentCenterLocation = action.payload;
-      console.log("currentCenterLocation", state.currentCenterLocation);
     },
     setFallbackCenterLocation(state, action) {
       state.fallbackCenterLocation = action.payload;
@@ -40,7 +38,6 @@ const mapSlice = createSlice({
     },
     setUseEndAsCenter(state, action) {
       state.useEndAsCenter = action.payload;
-      console.log("setUseEndAsCenter", state.useEndAsCenter);
     },
     setHasRouteEnd(state, action) {
       state.hasRouteEnd = action.payload;
@@ -57,12 +54,17 @@ const mapSlice = createSlice({
     setZoomOpen(state, action) {
       state.zoomOpen = action.payload;
     },
+    setClickedLngLat(state, action) {
+      state.clickedLngLat = action.payload;
+    },
+    setHasSearchResult(state, action) {
+      state.hasSearchResult = action.payload;
+    },
   },
 });
 
 export const {
   setMapState,
-  setIsSearchPanelExpand,
   setMapMode,
   setCurrentCenterLocation,
   setFallbackCenterLocation,
@@ -73,6 +75,8 @@ export const {
   setScaleOpen,
   setCompassOpen,
   setZoomOpen,
+  setClickedLngLat,
+  setHasSearchResult,
 } = mapSlice.actions;
 
 export default mapSlice.reducer;

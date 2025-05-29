@@ -1,60 +1,58 @@
-import { useState } from "react";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
-import Pagination from "@mui/material/Pagination";
 import PlaceDetailCard from "./PlaceDetailCard";
-import { useLocation } from "react-router-dom";
+import usePlaceDetailData from "../features/search/usePlaceDetailData";
+import { CircularProgress } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMapContext } from "../context/MapContext";
+import useAttractionData from "../features/attractions/useAttractionData";
 
 const Container = styled.div`
   max-width: 100%;
-  padding-top: 0.9rem;
   background-color: #fff;
+  padding: 1rem;
 `;
 
-const ITEMS_PER_PAGE = 5;
+const Header = styled.h2`
+  color: #333;
+  padding: 0.6rem 0;
+`;
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 12rem;
+`;
+
+const EmptyText = styled.p`
+  text-align: center;
+  color: #888;
+  padding: 2rem 0;
+`;
 
 function PlaceDetails() {
-  let dataArray = null;
-  const { attractionsArray } = useSelector(store => store.attraction);
-  const { hotelsArray } = useSelector(store => store.hotel);
-  const { positionsArray } = useSelector(store => store.position);
-
-  const location = useLocation();
-  const pathname = location.pathname;
-
-  if (pathname.includes("/attractions")) {
-    dataArray = attractionsArray;
-  } else if (pathname.includes("/hotels")) {
-    dataArray = hotelsArray;
-  } else if (pathname.includes("/positions")) {
-    dataArray = positionsArray;
-  }
-
-  const [page, setPage] = useState(1);
-
-  const handleChange = (event, value) => {
-    setPage(value);
-  };
-
-  if (!dataArray) return <div>Data is Loading...</div>;
-
-  const startIndex = (page - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = dataArray.slice(startIndex, endIndex);
-  const pageCount = Math.ceil(dataArray.length / ITEMS_PER_PAGE);
+  const queryClient = useQueryClient();
+  const dataArray = usePlaceDetailData();
 
   return (
     <Container>
-      {currentItems.map((item, index) => (
-        <PlaceDetailCard key={`${item.position_id}-${index}`} item={item} />
-      ))}
-      <Pagination
-        count={pageCount}
-        page={page}
-        onChange={handleChange}
-        color="secondary"
-        sx={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}
-      />
+      <Header>结果</Header>
+
+      {dataArray === null || dataArray === undefined ? (
+        <LoadingWrapper>
+          <CircularProgress />
+        </LoadingWrapper>
+      ) : dataArray.length === 0 ? (
+        <EmptyText>暂无符合条件的结果</EmptyText>
+      ) : (
+        dataArray.map((item, index) => (
+          <PlaceDetailCard
+            key={`${item.position_id || item.id}-${index}`}
+            item={item}
+            index={index}
+          />
+        ))
+      )}
     </Container>
   );
 }

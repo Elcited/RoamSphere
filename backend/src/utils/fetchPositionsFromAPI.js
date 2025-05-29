@@ -5,7 +5,7 @@ async function fetchPositionsFromAPI(
   lnglat = [],
   type = "",
   keyword,
-  region = "",
+  region = "长沙",
   radius = 10000
 ) {
   try {

@@ -15,8 +15,8 @@ import {
   setMapMode,
   setUseEndAsCenter,
 } from "../features/map/mapSlice";
-import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlice";
 import useQueryUpdater from "../hooks/useQueryUpdater";
+import { setSearchPanelExpanded } from "../features/search/searchSlice";
 
 const StyledForm = styled.form`
   font-family: inherit;
@@ -27,7 +27,7 @@ const StyledForm = styled.form`
   border: 1px #fff solid;
   border-radius: 1.2rem;
   align-items: center;
-  background-color: white;
+  background-color: #fff;
   opacity: 0;
 `;
 
@@ -57,8 +57,6 @@ const StyledInput = styled.input`
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
-const userId = "122a3422ssasd";
-
 function HeroForm() {
   const formRef = useRef(null);
   const [startInput, setStartInput] = useState("");
@@ -75,16 +73,16 @@ function HeroForm() {
     setEndInput(point);
   };
 
-  const handleClick = userId => {
+  const handleClick = () => {
     dispatch(setStart(startInput));
     dispatch(setEnd(endInput));
-    dispatch(setCurrentCenterLocation(endInput));
     dispatch(setUseEndAsCenter(true));
+    dispatch(setCurrentCenterLocation(endInput));
     dispatch(setHasRouteEnd(true));
     dispatch(setMapMode("route"));
+    dispatch(setSearchPanelExpanded(true));
     dispatch(setTravelMode("driving"));
     dispatch(setStrategy(`0,1,2`));
-    dispatch(setIsRoutesDrawerOpen(true));
 
     updateQueryAndNavigate(
       {
@@ -117,6 +115,7 @@ function HeroForm() {
           name="start-point"
           id="start"
           placeholder="起点"
+          autoComplete="off"
           value={startInput}
           onChange={e => handleStartInput(e.target.value)}
         />
@@ -128,6 +127,7 @@ function HeroForm() {
           name="end-point"
           id="end"
           placeholder="终点"
+          autoComplete="off"
           value={endInput}
           onChange={e => handleEndInput(e.target.value)}
         />

@@ -1,8 +1,11 @@
 import styled from "styled-components";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TripCard from "./TripCard";
+import { useRecommendedCities } from "../hooks/useRecommendedCities";
+import useQueryUpdater from "../hooks/useQueryUpdater";
+import getRandomImages from "../utils/getRandomImages";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -55,28 +58,82 @@ const RightContainer = styled.div`
 function RecommandedTrips() {
   const cardsRef = useRef([]);
   const textRef = useRef(null);
+  const [randomImages, setRandomImages] = useState([]);
   const totalCards = 4;
   const radius = 250;
+  const { data: recommendedCities = [], isSuccess } = useRecommendedCities();
+  const { updateQueryAndNavigate } = useQueryUpdater();
 
-  const handleCardClick = () => {
+  const paddedCities = recommendedCities.map((name, idx) => ({
+    cityName: name,
+    image: randomImages[idx] || "默认占位图地址",
+    _id: `city-${idx}`,
+    isPlaceholder: false,
+  }));
+
+  // 使用 placeholder 填补
+  while (paddedCities.length < totalCards) {
+    paddedCities.push({
+      cityName: "即将上线",
+      image: null,
+      _id: `placeholder-${paddedCities.length}`,
+      isPlaceholder: true,
+    });
+  }
+
+  const handleCardClick = (index, city) => {
+    if (city.isPlaceholder) return;
+
+    const card = cardsRef.current[index];
+    if (!card) return;
+
+    gsap.to(card, {
+      scale: 1.2,
+      opacity: 0,
+      duration: 0.4,
+      ease: "power2.out",
+      onComplete: () => {
+        updateQueryAndNavigate({}, "/map", {
+          state: { cityName: city.cityName },
+        });
+      },
+    });
+
     gsap.to(textRef.current, {
       opacity: 0,
-      duration: 1,
-      ease: "power4.out",
+      duration: 0.3,
+      ease: "power1.out",
     });
   };
 
   useEffect(() => {
-    if (cardsRef.current.every(ref => ref !== null)) {
-      const angleStep = 60 / (totalCards - 1);
+    setRandomImages(getRandomImages(4));
+  }, []);
+
+  useEffect(() => {
+    const actualCount = paddedCities.length;
+
+    if (
+      isSuccess &&
+      cardsRef.current.length === actualCount &&
+      cardsRef.current.every(ref => ref !== null)
+    ) {
+      const angleStep = actualCount === 1 ? 0 : 60 / (actualCount - 1);
       const staggerDelay = 0.1;
 
       gsap.set(textRef.current, { opacity: 0, y: "100%" });
+      gsap.set(cardsRef.current, {
+        opacity: 0,
+        x: 0,
+        y: 0,
+        rotation: -90,
+        scale: 1,
+      });
 
       let textTL = gsap.timeline({
         scrollTrigger: {
           trigger: "#DestinationList",
-          start: "center+=100px top",
+          start: "top+=600px top",
           end: "bottom bottom",
           scrub: true,
         },
@@ -84,8 +141,8 @@ function RecommandedTrips() {
 
       let cardTL = gsap.timeline({
         scrollTrigger: {
-          trigger: "#DestinationList",
-          start: "center+=100px top",
+          trigger: "#RecommandedTripsContainer",
+          start: "top-=650px top",
           end: "bottom bottom",
           scrub: true,
         },
@@ -99,7 +156,7 @@ function RecommandedTrips() {
       });
 
       cardsRef.current.forEach((card, index) => {
-        const angle = -75 + angleStep * index;
+        const angle = actualCount === 1 ? 0 : -75 + angleStep * index;
         const xOffset = -radius * Math.cos((angle * Math.PI) / 180);
         const yOffset = -radius * Math.sin((angle * Math.PI) / 180);
 
@@ -116,24 +173,26 @@ function RecommandedTrips() {
           staggerDelay * index
         );
 
-        card.addEventListener("mouseenter", () => {
-          gsap.to(card, {
-            scale: 1.1,
-            duration: 0.2,
-            ease: "power4.out",
+        if (!paddedCities[index].isPlaceholder) {
+          card.addEventListener("mouseenter", () => {
+            gsap.to(card, {
+              scale: 1.1,
+              duration: 0.2,
+              ease: "power4.out",
+            });
           });
-        });
 
-        card.addEventListener("mouseleave", () => {
-          gsap.to(card, {
-            scale: 1,
-            duration: 0.2,
-            ease: "power4.out",
+          card.addEventListener("mouseleave", () => {
+            gsap.to(card, {
+              scale: 1,
+              duration: 0.2,
+              ease: "power4.out",
+            });
           });
-        });
+        }
       });
     }
-  }, []);
+  }, [isSuccess, paddedCities]);
 
   return (
     <RecommandedTripsContainer id="RecommandedTripsContainer">
@@ -146,12 +205,17 @@ function RecommandedTrips() {
         </LeftContainer>
 
         <RightContainer id="RightContainer">
-          {[...Array(4)].map((_, index) => (
+          {paddedCities.map((city, index) => (
             <TripCard
-              key={index}
+              key={city._id || index}
               index={index}
+              cityName={city.cityName}
+              cityImage={
+                city.image ||
+                "https://via.placeholder.com/450x600?text=Coming+Soon"
+              }
               ref={el => (cardsRef.current[index] = el)}
-              handleClick={() => handleCardClick(index)}
+              handleClick={() => handleCardClick(index, city)}
             />
           ))}
         </RightContainer>

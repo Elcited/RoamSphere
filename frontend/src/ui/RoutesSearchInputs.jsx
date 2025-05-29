@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import IconButton from "@mui/material/IconButton";
 import ImportExportIcon from "@mui/icons-material/ImportExport";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import DirectionsTransitIcon from "@mui/icons-material/DirectionsTransit";
@@ -11,23 +10,41 @@ import CloseIcon from "@mui/icons-material/Close";
 import {
   setEnd,
   setStart,
+  setStartEndEmpty,
   setStrategy,
   setTravelMode,
 } from "../features/routeDetail/routeSlice";
-import useAMapLoader from "../hooks/useAMapLoader";
-import useQueryUpdater from "../hooks/useQueryUpdater";
-import useDebouncedCallback from "../hooks/useDebouncedCallback";
-import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlice";
+import { setSearchPanelExpanded } from "../features/search/searchSlice";
 import SearchInput from "./SearchInput";
+import {
+  setClickedLngLat,
+  setCurrentCenterLocation,
+  setHasRouteEnd,
+  setMapMode,
+  setUseEndAsCenter,
+} from "../features/map/mapSlice";
+import useQueryUpdater from "../hooks/useQueryUpdater";
+import useInputWithAmapTips from "../hooks/useInputWithAmapTips";
+import useAutoFillInputFromClick from "../features/routeDetail/useAutoFillInputFromClick";
+import { clearDrivingRoute } from "../features/drivingRoute/drivingRouteSlice";
+import { clearCyclingRoute } from "../features/cyclingRoute/cyclingRouteSlice";
+import { clearWalkingRoute } from "../features/walkingRoute/walkingRouteSlice";
+import { clearTransitRoute } from "../features/transitRoute/transitRouteSlice";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.2rem;
+  padding: 0.3rem;
   gap: 1.2rem;
   background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding-bottom: 1.2rem;
+
+  position: sticky;
+  top: 0;
+  z-index: 10; /* 保证它在其他元素之上 */
+  background-color: #fff; /* 必须有背景色，否则下面内容会透出来 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const Header = styled.div`
@@ -37,14 +54,27 @@ const Header = styled.div`
   font-size: 2.4rem;
 `;
 
-const StyledIconButton = styled(IconButton)`
-  background-color: ${({ selected }) => (selected ? "#e0f7fa" : "transparent")};
-  color: ${({ selected }) => (selected ? "#00796b" : "inherit")};
-  border: ${({ selected }) => (selected ? "2px solid #00796b" : "none")};
-  transition: all 0.3s;
+const IconButtonBox = styled.button`
+  all: unset;
+  background-color: ${({ $selected }) =>
+    $selected ? "#e0f7fa" : "transparent"};
+  color: ${({ $selected }) => ($selected ? "#1976d2" : "inherit")};
+  border: ${({ $selected }) => ($selected ? "2px solid #a3c8ed" : "none")};
+  border-radius: 50%;
+  padding: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
-    background-color: #b2dfdb;
+    background-color: #e8f1fb;
+  }
+
+  svg {
+    font-size: 2.4rem;
   }
 `;
 
@@ -74,35 +104,50 @@ const CloseButtonBox = styled.div`
 
 function RoutesSearchInputs() {
   const { start, end, strategy } = useSelector(store => store.route);
-  const { data: AMap, isSuccess, isLoading } = useAMapLoader();
+  const travelMode = useSelector(state => state.route.travelMode);
+  const { updateQueryAndNavigate } = useQueryUpdater();
+
   const dispatch = useDispatch();
 
+  const currentInputRef = useRef(null); // 当前激活输入框
   const startInputRef = useRef(null);
   const endInputRef = useRef(null);
-  const [selectedMode, setSelectedMode] = useState("");
 
-  const { updateQueryAndNavigate } = useQueryUpdater();
+  useAutoFillInputFromClick({ currentInputRef });
+
+  const { value: startValue, onChange: onStartChange } = useInputWithAmapTips(
+    startInputRef,
+    start,
+    val => dispatch(setStart(val))
+  );
+
+  const { value: endValue, onChange: onEndChange } = useInputWithAmapTips(
+    endInputRef,
+    end,
+    val => dispatch(setEnd(val))
+  );
+
+  const [selectedMode, setSelectedMode] = useState("");
 
   const handleChangeTravelMode = id => {
     dispatch(setTravelMode(id));
     setSelectedMode(id);
+    updateQueryAndNavigate({ travelMode: id });
     if (id !== "driving") dispatch(setStrategy("0"));
     else dispatch(setStrategy("0,1,2"));
   };
 
-  const debouncedSetStart = useDebouncedCallback(
-    value => dispatch(setStart(value)),
-    600
-  );
-
-  const debouncedSetEnd = useDebouncedCallback(
-    value => dispatch(setEnd(value)),
-    600
-  );
-
   const handleSwap = () => {
     dispatch(setStart(end));
     dispatch(setEnd(start));
+    dispatch(clearDrivingRoute());
+    dispatch(clearCyclingRoute());
+    dispatch(clearWalkingRoute());
+    dispatch(clearTransitRoute());
+  };
+
+  const handleFocus = type => {
+    currentInputRef.current = type; // 'start' 或 'end'
   };
 
   const TravelModeButtonConfigs = [
@@ -125,60 +170,103 @@ function RoutesSearchInputs() {
   ];
 
   useEffect(() => {
-    if (!isSuccess || !AMap || !startInputRef.current) return;
-    AMap.plugin("AMap.AutoComplete", () => {
-      new AMap.AutoComplete({
-        input: startInputRef.current,
-      });
-    });
-  }, [start, startInputRef, isSuccess]);
+    if (!travelMode) {
+      dispatch(setTravelMode("driving"));
+      dispatch(setStrategy("0,1,2"));
+    }
+  }, [travelMode]);
 
   useEffect(() => {
-    if (!isSuccess || !AMap || !endInputRef.current) return;
-    AMap.plugin("AMap.AutoComplete", () => {
-      new AMap.AutoComplete({
-        input: endInputRef.current,
-      });
-    });
-  }, [end, endInputRef, isSuccess]);
+    if (!start) {
+      currentInputRef.current = "start";
+    } else if (!end) {
+      currentInputRef.current = "end";
+    } else {
+      currentInputRef.current = null; // 两个都填了，就不自动填了
+    }
+  }, [start, end]);
+
+  useEffect(() => {
+    // 当 start 和 end 都被选择后，设置 strategy
+    if (start && end) {
+      if (travelMode === "driving") {
+        dispatch(setStrategy("0,1,2"));
+      } else {
+        dispatch(setStrategy("0")); // 其他模式默认策略
+      }
+      dispatch(setUseEndAsCenter(true));
+      // dispatch(setHasRouteEnd(end));
+      dispatch(setCurrentCenterLocation(end));
+    }
+  }, [start, end, travelMode, dispatch]);
+
+  useEffect(() => {
+    return () => {
+      currentInputRef.current = null;
+    };
+  }, []);
 
   return (
     <Container>
       <Header>
         <TravelModeBox>
           {TravelModeButtonConfigs.map(config => (
-            <StyledIconButton
+            <IconButtonBox
               key={config.id}
               onClick={() => handleChangeTravelMode(config.id)}
-              selected={selectedMode === config.id}
+              $selected={travelMode === config.id}
             >
               {config.button}
-            </StyledIconButton>
+            </IconButtonBox>
           ))}
           <CloseButtonBox>
-            <IconButton onClick={() => dispatch(setIsRoutesDrawerOpen(false))}>
+            <IconButtonBox
+              onClick={() => {
+                dispatch(setSearchPanelExpanded(false));
+                dispatch(setMapMode("position"));
+                dispatch(setStartEndEmpty());
+                dispatch(setMapMode(null));
+                dispatch(setTravelMode(null));
+                dispatch(setClickedLngLat(null));
+                dispatch(setHasRouteEnd(false));
+                dispatch(clearDrivingRoute());
+                dispatch(clearCyclingRoute());
+                dispatch(clearWalkingRoute());
+                dispatch(clearTransitRoute());
+                currentInputRef.current = null;
+                updateQueryAndNavigate({}, "/map", {
+                  clearOthers: true,
+                });
+              }}
+            >
               <CloseIcon fontSize="large" />
-            </IconButton>
+            </IconButtonBox>
           </CloseButtonBox>
         </TravelModeBox>
         <InputsAndButtonBox>
           <InputsBox>
             <SearchInput
-              value={start}
-              onChange={debouncedSetStart}
+              value={startValue}
+              onChange={onStartChange}
               placeholder="选择起点，或者地图上点击一个地点"
               inputRef={startInputRef}
+              onFocus={() => handleFocus("start")}
+              currentInputRef={currentInputRef}
+              type="start"
             />
             <SearchInput
-              value={end}
-              onChange={debouncedSetEnd}
+              value={endValue}
+              onChange={onEndChange}
               placeholder="选择终点，或者地图上点击一个地点"
               inputRef={endInputRef}
+              onFocus={() => handleFocus("end")}
+              currentInputRef={currentInputRef}
+              type="end"
             />
           </InputsBox>
-          <IconButton onClick={handleSwap}>
+          <IconButtonBox onClick={handleSwap}>
             <ImportExportIcon fontSize="large" />
-          </IconButton>
+          </IconButtonBox>
         </InputsAndButtonBox>
       </Header>
     </Container>

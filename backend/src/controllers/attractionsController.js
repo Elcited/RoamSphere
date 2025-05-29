@@ -1,5 +1,8 @@
 const fetchPositionsFromAPI = require("../utils/fetchPositionsFromAPI");
 const { formatAttractionResult } = require("../utils/attractionsHelpers");
+const { saveAttractionsToDB } = require("../services/attractionService");
+const { ensure2DSphereIndex } = require("../utils/mongoHelpers");
+const { recordCitiesFromResults } = require("../services/userActivityService");
 const Attraction = require("../models/attractionModel");
 
 async function getAttractions(req, res) {
@@ -11,11 +14,10 @@ async function getAttractions(req, res) {
   const [lng, lat] = location.split(",").map(Number);
 
   try {
-    const indexes = await Attraction.collection.indexes();
-    if (!indexes.some(idx => idx.key?.location === "2dsphere")) {
-      await Attraction.collection.createIndex({ location: "2dsphere" });
-    }
+    // 确保地理位置索引存在
+    await ensure2DSphereIndex(Attraction.collection, "location");
 
+    // 查数据库
     const existingAttractions = await Attraction.find({
       location: {
         $nearSphere: {
@@ -35,6 +37,7 @@ async function getAttractions(req, res) {
       });
     }
 
+    // 拉取 API 数据
     const { data: attractionsDataFromAPI } = await fetchPositionsFromAPI(
       null,
       [lng, lat],
@@ -43,21 +46,16 @@ async function getAttractions(req, res) {
       null,
       radius
     );
+
     const formattedAttractions = formatAttractionResult(attractionsDataFromAPI);
 
-    const newAttractions = [];
-    for (const attraction of formattedAttractions) {
-      const exists = await Attraction.findOne({
-        position_id: attraction.position_id,
-      });
-      if (!exists) {
-        newAttractions.push(attraction);
-      }
+    /* 在用户登录的情况下，对查询结果所在城市进行统计 */
+    if (req.user && formattedAttractions.length > 0) {
+      await recordCitiesFromResults(req.user._id, formattedAttractions);
     }
 
-    if (newAttractions.length > 0) {
-      await Attraction.insertMany(newAttractions);
-    }
+    // 保存到 DB
+    const newAttractions = await saveAttractionsToDB(formattedAttractions);
 
     const allAttractions = [...existingAttractions, ...newAttractions];
     res.json({

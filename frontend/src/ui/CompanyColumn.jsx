@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import CompanyBodyItem from "./CompanyBodyItem";
+import useQueryUpdater from "../hooks/useQueryUpdater";
 
 // const StyledColumn = styled.div`
 //   display: grid;
@@ -32,20 +33,53 @@ const CompanyBody = styled.div`
   align-items: start;
 `;
 
-const items = [
-  { id: 1, content: "关于RoamShpere" },
-  { id: 2, content: "商业联系" },
-  { id: 3, content: "合作伙伴" },
-  { id: 4, content: "加入我们" },
-];
-
 function CompanyColumn() {
+  const { updateQueryAndNavigate } = useQueryUpdater();
+  const items = [
+    {
+      id: 1,
+      content: "关于RoamShpere",
+      type: "about",
+      handler: function () {
+        updateQueryAndNavigate({}, "/about", {});
+      },
+    },
+    {
+      id: 2,
+      content: "商业联系",
+      type: "businessContact",
+      handler: function () {
+        updateQueryAndNavigate({}, "/businessContact", {});
+      },
+    },
+    {
+      id: 3,
+      content: "合作伙伴",
+      type: "partner",
+      handler: function () {
+        updateQueryAndNavigate({}, "/partner", {});
+      },
+    },
+    {
+      id: 4,
+      content: "加入我们",
+      type: "joinUs",
+      handler: function () {
+        updateQueryAndNavigate({}, "/joinUs", {});
+      },
+    },
+  ];
+
   return (
     <StyledColumn>
       <Title>公司</Title>
       <CompanyBody>
         {items.map(item => (
-          <CompanyBodyItem content={item.content} key={item.id} />
+          <CompanyBodyItem
+            content={item.content}
+            key={item.id}
+            handler={item.handler}
+          />
         ))}
       </CompanyBody>
     </StyledColumn>

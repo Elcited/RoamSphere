@@ -1,7 +1,8 @@
 function formatTimeValue(time) {
-  if (typeof time !== "number") return "未知";
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
+  let convertedTime = null;
+  if (typeof time !== "number") convertedTime = Number(time);
+  const hours = Math.floor(convertedTime / 100);
+  const minutes = convertedTime % 100;
   return `${hours}:${minutes.toString().padStart(2, "0")}`;
 }
 
@@ -11,22 +12,17 @@ export default function extractTimeRange(segmentField) {
   // 处理 bus / subway / cityRailway（数组结构）
   if (Array.isArray(segmentField)) {
     for (const item of segmentField) {
-      if (
-        typeof item.startTime === "number" &&
-        typeof item.endTime === "number"
-      ) {
-        const timeRange = `${formatTimeValue(
-          item.startTime
-        )} - ${formatTimeValue(item.endTime)}`;
-        const departure = item.departureStop?.name || "起点未知";
-        const arrival = item.arrivalStop?.name || "终点未知";
-        results.push({
-          timeRange,
-          departure,
-          arrival,
-          fullText: `${departure} → ${arrival}（${timeRange}）`,
-        });
-      }
+      const timeRange = `${formatTimeValue(item.startTime)} - ${formatTimeValue(
+        item.endTime
+      )}`;
+      const departure = item.departureStop?.name || "起点未知";
+      const arrival = item.arrivalStop?.name || "终点未知";
+      results.push({
+        timeRange,
+        departure,
+        arrival,
+        fullText: `${departure} → ${arrival}（${timeRange}）`,
+      });
     }
   }
 

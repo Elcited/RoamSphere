@@ -6,7 +6,10 @@ export default function useInitializeMap(AMap, isSuccess) {
 
   useEffect(() => {
     if (!isSuccess || !AMap) return;
-    const mapInstance = new AMap.Map(mapRef.current, { zoom: 11 });
+    const mapInstance = new AMap.Map(mapRef.current, {
+      zoom: 11,
+      plugins: ["AMap.Geocoder", , "AMap.AutoComplete", "AMap.PlaceSearch"],
+    });
     setMap(mapInstance);
     return () => mapInstance?.destroy();
   }, [AMap, isSuccess]);

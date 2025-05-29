@@ -23,15 +23,16 @@ import { useLocation } from "react-router-dom";
 
 const Container = styled.div`
   background-color: #fff;
+  color: #444;
 `;
 
-const Header = styled.h1`
-  padding: 1.2rem;
+const Header = styled.h3`
+  padding: 0.6rem;
 `;
 
 const IconButtonBox = styled.div`
   display: flex;
-  padding: 1.2rem;
+  padding: 0.6rem 0;
   gap: 2.4rem;
   justify-content: center;
   align-items: center;
@@ -105,7 +106,7 @@ function RouteDestinationRecommand() {
       {
         key: "restaurant",
         label: "餐厅",
-        icon: <RestaurantIcon fontSize="large" />,
+        icon: <RestaurantIcon fontSize="large" sx={{ color: "#FF5722" }} />,
         mapModeValue: "position",
         positionType: "050100",
         toPath: "/map/positions",
@@ -113,14 +114,14 @@ function RouteDestinationRecommand() {
       {
         key: "hotel",
         label: "酒店",
-        icon: <HotelIcon fontSize="large" />,
+        icon: <HotelIcon fontSize="large" sx={{ color: "#3F51B5" }} />,
         mapModeValue: "hotel",
         toPath: "/map/hotels",
       },
       {
         key: "parking",
         label: "停车场",
-        icon: <LocalParkingIcon fontSize="large" />,
+        icon: <LocalParkingIcon fontSize="large" sx={{ color: "#009688" }} />,
         mapModeValue: "position",
         positionType: "150700",
         toPath: "/map/positions",
@@ -128,7 +129,9 @@ function RouteDestinationRecommand() {
       {
         key: "gasStation",
         label: "加油站",
-        icon: <LocalGasStationIcon fontSize="large" />,
+        icon: (
+          <LocalGasStationIcon fontSize="large" sx={{ color: "#FF9800" }} />
+        ),
         mapModeValue: "position",
         positionType: "010100",
         toPath: "/map/positions",
@@ -136,7 +139,7 @@ function RouteDestinationRecommand() {
       {
         key: "more",
         label: "更多",
-        icon: <MoreHorizIcon fontSize="large" />,
+        icon: <MoreHorizIcon fontSize="large" sx={{ color: "#607D8B" }} />,
         mapModeValue: "position",
         toPath: "/map/positions",
       },

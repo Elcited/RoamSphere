@@ -10,8 +10,8 @@ const Container = styled.div`
   background-color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: absolute;
-  top: 5.5rem;
-  left: 70rem;
+  top: 6rem;
+  left: 50rem;
   z-index: 1000;
   display: flex;
   justify-content: center;

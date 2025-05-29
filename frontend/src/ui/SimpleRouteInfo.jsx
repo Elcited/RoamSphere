@@ -3,6 +3,16 @@ import SimpleRouteInfoHeader from "./SimpleRouteInfoHeader";
 import SimpleRouteInfoOverview from "./SimpleRouteInfoOverview";
 import useGetRouteInfo from "../hooks/useGetRouteInfo";
 import getSimpleSelectedRouteFields from "../utils/getSimpleSelectedRouteFields";
+import { CircularProgress, Typography } from "@mui/material";
+import styled from "styled-components";
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 0;
+  color: #888;
+`;
 
 function SimpleRouteInfo({ travelMode, selectedRouteIndex }) {
   const routeData = useGetRouteInfo(travelMode);
@@ -20,7 +30,14 @@ function SimpleRouteInfo({ travelMode, selectedRouteIndex }) {
   } = getSimpleSelectedRouteFields(routeData, selectedRouteIndex);
 
   if (!routeInfo || !routeInstructions) {
-    return <div>🚧 正在加载路线详情，请稍候...</div>;
+    return (
+      <LoadingWrapper>
+        <CircularProgress size={32} />
+        <Typography variant="body2" sx={{ marginTop: 2 }}>
+          正在加载路线详情，请稍候...
+        </Typography>
+      </LoadingWrapper>
+    );
   }
 
   return (

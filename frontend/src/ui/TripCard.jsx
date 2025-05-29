@@ -1,7 +1,5 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import styled from "styled-components";
-
-import tripImage from "../assets/images/hero.jpg";
 
 const StyledTripCard = styled.div`
   position: absolute;
@@ -9,19 +7,37 @@ const StyledTripCard = styled.div`
   height: 600px;
   right: -650px;
   bottom: 75px;
-  background-color: #ddd;
+  background-color: #eee;
   border-radius: 10px;
-  background-image: url(${tripImage});
+  background-image: url(${props => props.$bgImage});
   background-size: cover;
-  opacity: 0;
+  background-position: center;
   cursor: pointer;
   transform-origin: bottom left;
   transition: transform 0.3s ease, opacity 0.3s ease;
   transform: rotate(-90deg);
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
 `;
 
-const TripCard = forwardRef(({ handleClick }, ref) => {
-  return <StyledTripCard ref={ref} onClick={handleClick}></StyledTripCard>;
+const CityNameText = styled.div`
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1.6rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+`;
+
+const TripCard = forwardRef(({ handleClick, cityImage, cityName }, ref) => {
+  console.log(cityImage);
+  return (
+    <StyledTripCard ref={ref} $bgImage={cityImage} onClick={handleClick}>
+      <CityNameText>{cityName}</CityNameText>
+    </StyledTripCard>
+  );
 });
 
 export default TripCard;

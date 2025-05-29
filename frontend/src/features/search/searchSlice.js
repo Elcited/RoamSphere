@@ -1,28 +1,40 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  startLocation: "",
-  endLocation: "",
-  isLoading: false,
+  isActive: false,
+  isPlaceDetailPanelVisible: false,
+  isSearchPanelExpanded: false,
+  selectedPlaceIndex: null,
 };
 
 const searchSlice = createSlice({
   name: "search",
   initialState,
   reducers: {
-    setStartLocation(state, action) {
-      state.startLocation = action.payload;
+    activateSearch: (state, action) => {
+      state.isActive = true;
+      state.keyword = action.payload;
     },
-    setEndLocation(state, action) {
-      state.endLocation = action.payload;
+    setPlaceDetailPanelVisible(state, action) {
+      state.isPlaceDetailPanelVisible = action.payload;
     },
-    onSearch(state, action) {
-      state.isLoading = action.payload;
+    setSearchPanelExpanded(state, action) {
+      state.isSearchPanelExpanded = action.payload;
+    },
+    setSelectedPlaceIndex(state, action) {
+      state.selectedPlaceIndex = action.payload;
+    },
+    resetSearch: state => {
+      state.isActive = false;
     },
   },
 });
 
-export const { setStartLocation, setEndLocation, onSearch } =
-  searchSlice.actions;
-
+export const {
+  activateSearch,
+  resetSearch,
+  setPlaceDetailPanelVisible,
+  setSearchPanelExpanded,
+  setSelectedPlaceIndex,
+} = searchSlice.actions;
 export default searchSlice.reducer;

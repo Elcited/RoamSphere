@@ -3,10 +3,20 @@ export default function extractTransitTypes(segments = []) {
 
   const cleanName = (name, type) => {
     if (!name) return undefined;
+
     name = name.trim();
 
-    // 去掉括号内容
-    const mainPart = name.replace(/\(.*?\)/g, "").trim();
+    // 保留括号前的内容（处理 () 和 （））
+    let mainPart = name.split(/[\(（]/)[0].trim();
+
+    // 去掉 -- 后缀（如果还有的话）
+    mainPart = mainPart.split("--")[0].trim();
+
+    // 去掉中括号 [] 内容
+    mainPart = mainPart.replace(/\[[^\]]*\]/g, "").trim();
+
+    // 去掉 _xxx 中文后缀
+    mainPart = mainPart.replace(/_[\u4e00-\u9fa5]+$/, "").trim();
 
     if (type === "subway") {
       const match = mainPart.match(/(?:地铁)?([\d一二三四五六七八九十]+号线)/);
@@ -19,12 +29,11 @@ export default function extractTransitTypes(segments = []) {
     }
 
     if (type === "cityRailway") {
-      const match = name.match(/\(([^()]+)\)/);
-      return match ? match[1].trim() : name;
+      return mainPart;
     }
 
     if (type === "railway") {
-      return name;
+      return mainPart;
     }
 
     return undefined;

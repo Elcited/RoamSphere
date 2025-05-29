@@ -8,9 +8,6 @@ export default function parseWalkingRouteResult(routes) {
     const polyline = route.polyline;
     const routeDetail = route.routeDetail;
 
-    console.log(polyline);
-    console.log(routeDetail);
-
     const startLocation = routeDetail?.start_location || {};
     const endLocation = routeDetail?.end_location || {};
     const startInfo = routeDetail?.startInfo;

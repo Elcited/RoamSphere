@@ -21,10 +21,21 @@ const transitRouteSlice = createSlice({
     clearTransitRoutes(state) {
       Object.assign(state, initialState);
     },
+    clearTransitRoute: state => {
+      state.routeList = [];
+      state.selectedRoute = 0;
+      state.startLocation = null;
+      state.endLocation = null;
+      state.travelMode = "transit";
+    },
   },
 });
 
-export const { setRoutesInfo, setTransitSelectedRoute, clearTransitRoutes } =
-  transitRouteSlice.actions;
+export const {
+  setRoutesInfo,
+  setTransitSelectedRoute,
+  clearTransitRoutes,
+  clearTransitRoute,
+} = transitRouteSlice.actions;
 
 export default transitRouteSlice.reducer;

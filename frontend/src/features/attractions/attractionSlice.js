@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   attractionCenterLocation: null,
-  attractionsArray: null,
+  attractionsArray: [],
   attractionsCount: null,
   singleAttraction: null,
   attractionInfo: null,
@@ -31,6 +31,15 @@ const attractionSlice = createSlice({
     setIsAttractionRendered(state, action) {
       state.isAttractionRendered = action.payload;
     },
+    clearAttractionSlice(state) {
+      state.attractionCenterLocation = null;
+      state.attractionsArray = [];
+      state.attractionsCount = null;
+      state.singleAttraction = null;
+      state.attractionInfo = null;
+      state.isSelected = false;
+      state.isAttractionRendered = false;
+    },
   },
 });
 
@@ -39,6 +48,7 @@ export const {
   setAttractionsArray,
   setIsSelected,
   setIsAttractionRendered,
+  clearAttractionSlice,
 } = attractionSlice.actions;
 
 export default attractionSlice.reducer;

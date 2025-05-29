@@ -43,6 +43,17 @@ const walkingRouteSlice = createSlice({
     setWalkingSelectedRoute(state, action) {
       state.selectedRoute = action.payload;
     },
+    clearWalkingRoute: state => {
+      state.routesInfo = null;
+      state.routesPolylines = null;
+      state.routesCities = null;
+      state.routesInstructions = null;
+      state.routesNavigations = null;
+      state.routesOrientations = null;
+      state.routesStepDistance = null;
+      state.routesWalkTypes = null;
+      state.selectedRoute = 0;
+    },
   },
 });
 
@@ -56,6 +67,7 @@ export const {
   setRoutesStepDistance,
   setRoutesOrientations,
   setWalkingSelectedRoute,
+  clearWalkingRoute,
 } = walkingRouteSlice.actions;
 
 export default walkingRouteSlice.reducer;

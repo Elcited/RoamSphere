@@ -19,11 +19,11 @@ const positionSlice = createSlice({
   reducers: {
     setPositionCenterLocation(state, action) {
       state.positionCenterLocation = action.payload;
-      console.log("positionCenterLocation", action.payload);
+      console.log("setPositionCenterLocation", action.payload);
     },
     setPositionKeyWord(state, action) {
       state.positionKeyWord = action.payload;
-      console.log("positionKeyWord", action.payload);
+      console.log("setPositionKeyWord", action.payload);
     },
     setPositionsArray(state, action) {
       state.positionsArray = action.payload;
@@ -36,6 +36,7 @@ const positionSlice = createSlice({
     },
     setPositionRegion(state, action) {
       state.positionRegion = action.payload;
+      console.log("setPositionRegion", action.payload);
     },
     setLoading(state, action) {
       state.loading = action.payload;
@@ -48,6 +49,18 @@ const positionSlice = createSlice({
     },
     setIsPositionRendered(state, action) {
       state.isPositionRendered = action.payload;
+    },
+    clearPositionSlice(state) {
+      state.positionCenterLocation = null;
+      state.positionKeyWord = null;
+      state.positionsArray = [];
+      state.positionsCount = null;
+      state.positionType = null;
+      state.positionRegion = null;
+      state.isPositionRendered = false;
+      state.loading = false;
+      state.error = null;
+      state.source = null;
     },
   },
 });
@@ -62,6 +75,7 @@ export const {
   setError,
   setLoading,
   setIsPositionRendered,
+  clearPositionSlice,
 } = positionSlice.actions;
 
 export default positionSlice.reducer;

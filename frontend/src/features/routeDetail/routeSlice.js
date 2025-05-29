@@ -7,7 +7,6 @@ const initialState = {
   travelMode: null,
   isClickNavigation: false,
   highlightedSegment: null,
-  isRouteRendered: false,
   isRoutesLoading: true,
   isRoutesSuccess: false,
 };
@@ -22,6 +21,10 @@ const routeSlice = createSlice({
     setEnd(state, action) {
       state.end = action.payload;
     },
+    setStartEndEmpty(state, action) {
+      state.start = "";
+      state.end = "";
+    },
     setTravelMode(state, action) {
       state.travelMode = action.payload;
     },
@@ -35,9 +38,6 @@ const routeSlice = createSlice({
     setHighlightedSegment(state, action) {
       state.highlightedSegment = action.payload;
     },
-    setIsRouteRendered(state, action) {
-      state.isRouteRendered = action.payload;
-    },
     setIsRoutesLoading(state, action) {
       state.isRoutesLoading = action.payload;
     },
@@ -50,6 +50,7 @@ const routeSlice = createSlice({
 export const {
   setStart,
   setEnd,
+  setStartEndEmpty,
   setTravelMode,
   setStrategy,
   setRoutesInfo,

@@ -20,9 +20,15 @@ export default function useRenderTransitPolylines(
   };
 
   useEffect(() => {
-    if (!shouldRender || !map || !AMap || !parsedRoutes?.length) return;
-    console.log("Transit parsedPolylines", parsedRoutes);
-    console.log("selectedRouteIndex", selectedRouteIndex);
+    // 提前返回逻辑，不要让 useEffect 逻辑炸
+    if (
+      !Array.isArray(parsedRoutes) ||
+      !parsedRoutes.length ||
+      !shouldRender ||
+      !map ||
+      !AMap
+    )
+      return;
 
     if (polylineRef.current.length > 0) {
       polylineRef.current.forEach(p => map.remove(p));
@@ -35,8 +41,6 @@ export default function useRenderTransitPolylines(
     parsedPolylines.forEach(strategyGroup => {
       strategyGroup.forEach((route, index) => {
         const isSelected = index === selectedRouteIndex;
-
-        console.log("isSelected", isSelected);
 
         route.segments.forEach(segment => {
           segment.forEach(s => {
@@ -59,11 +63,10 @@ export default function useRenderTransitPolylines(
       });
     });
   }, [
-    parsedRoutes,
+    Array.isArray(parsedRoutes) ? parsedRoutes : [], // 保证永远是数组
     selectedRouteIndex,
     map,
     AMap,
-    polylineRef,
     shouldRender,
     strokeColor,
     strokeWeight,

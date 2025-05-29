@@ -43,6 +43,17 @@ const cyclingRouteSlice = createSlice({
     setCyclingSelectedRoute(state, action) {
       state.selectedRoute = action.payload;
     },
+    clearCyclingRoute: state => {
+      state.routesInfo = null;
+      state.routesPolylines = null;
+      state.routesCities = null;
+      state.routesInstructions = null;
+      state.routesNavigations = null;
+      state.routesOrientations = null;
+      state.routesWalkTypes = null;
+      state.routesStepDistance = null;
+      state.selectedRoute = 0;
+    },
   },
 });
 
@@ -56,6 +67,7 @@ export const {
   setRoutesStepDistance,
   setRoutesOrientations,
   setCyclingSelectedRoute,
+  clearCyclingRoute,
 } = cyclingRouteSlice.actions;
 
 export default cyclingRouteSlice.reducer;

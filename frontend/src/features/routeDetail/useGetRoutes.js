@@ -16,8 +16,6 @@ export default function useGetRoutes(
   const isReady = !!(
     AMap &&
     map &&
-    start &&
-    end &&
     strategy !== undefined &&
     strategy !== null &&
     startLocation &&
@@ -29,8 +27,6 @@ export default function useGetRoutes(
       "routes",
       strategy,
       travelMode,
-      start,
-      end,
       startLocation?.join(","),
       endLocation?.join(","),
     ],

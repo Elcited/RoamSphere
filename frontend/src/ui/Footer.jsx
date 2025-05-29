@@ -10,14 +10,11 @@ const FooterContainer = styled.footer`
   border-top: 1px solid #eee;
 `;
 
-const footerData = [{}, {}, {}, {}, {}];
-
 function Footer() {
   return (
     <FooterContainer>
       <FooterGridBox>
         <FooterInfoBox></FooterInfoBox>
-        <ScrollUpButton></ScrollUpButton>
       </FooterGridBox>
     </FooterContainer>
   );

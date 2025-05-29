@@ -3,7 +3,6 @@ import RoutesSearchInputs from "./RoutesSearchInputs";
 import { Outlet, useLocation } from "react-router-dom";
 import RoutesDisplay from "./RoutesDisplay";
 import RouteDestinationRecommand from "./RouteDestinationRecommand";
-import { useDispatch } from "react-redux";
 
 const Container = styled.div`
   width: 40rem;
@@ -15,7 +14,6 @@ const Container = styled.div`
 
 function RouteOverview() {
   const location = useLocation();
-  const dispatch = useDispatch();
 
   return (
     <Container>

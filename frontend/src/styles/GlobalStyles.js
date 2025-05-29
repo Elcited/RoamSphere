@@ -6,14 +6,13 @@ import "@fontsource/roboto/700.css";
 
 const GlobalStyles = createGlobalStyle`
 * {
-  box-sizing:border-box;
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 
   &::before, ::after {
     box-sizing: border-box
   }
-
 }
 
 html {

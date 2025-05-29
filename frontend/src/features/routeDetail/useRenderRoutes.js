@@ -24,7 +24,6 @@ export default function useRenderRoutes(
     isSuccess,
     isLoading,
   } = useGetRoutes(startLocation, endLocation, AMap, map, mapMode, travelMode);
-  console.log(routeData);
 
   useEffect(() => {
     dispatch(setIsRoutesLoading(isLoading));
@@ -36,6 +35,8 @@ export default function useRenderRoutes(
   const parsedRoutes = shouldRender
     ? getParserByTravelMode(travelMode)(routeData.routes)
     : [];
+
+  const normalizedRoutes = Array.isArray(parsedRoutes) ? parsedRoutes : [];
 
   const selectedRouteIndex = useSelectedRouteIndex(travelMode);
 
@@ -55,27 +56,32 @@ export default function useRenderRoutes(
     transit: 5,
   };
 
-  if (["walking", "cycling", "driving"].includes(travelMode)) {
-    useRenderSimplePolylines(
-      parsedRoutes,
-      selectedRouteIndex,
-      map,
-      AMap,
-      polylineRef,
-      shouldRender,
-      colorMap[travelMode],
-      weightMap[travelMode]
-    );
-  } else if (travelMode === "transit") {
-    useRenderTransitPolylines(
-      parsedRoutes,
-      selectedRouteIndex,
-      map,
-      AMap,
-      polylineRef,
-      shouldRender,
-      colorMap[travelMode],
-      weightMap[travelMode]
-    );
-  }
+  useRenderSimplePolylines(
+    normalizedRoutes,
+    selectedRouteIndex,
+    map,
+    AMap,
+    polylineRef,
+    shouldRender && ["walking", "cycling", "driving"].includes(travelMode),
+    colorMap[travelMode],
+    weightMap[travelMode]
+  );
+
+  useRenderTransitPolylines(
+    normalizedRoutes,
+    selectedRouteIndex,
+    map,
+    AMap,
+    polylineRef,
+    shouldRender && travelMode === "transit",
+    colorMap[travelMode],
+    weightMap[travelMode]
+  );
+
+  useEffect(() => {
+    if (!shouldRender && polylineRef.current.length > 0 && map) {
+      polylineRef.current.forEach(p => map.remove(p));
+      polylineRef.current = [];
+    }
+  }, [shouldRender, map]);
 }

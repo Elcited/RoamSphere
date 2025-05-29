@@ -13,8 +13,6 @@ import {
 
 export default function useSyncWalkingRouteData(parsedRoutes, shouldDispatch) {
   const dispatch = useDispatch();
-  console.log("useSyncWalkingRouteData", parsedRoutes);
-  console.log("useSyncWalkingRouteData shouldDispatch", shouldDispatch);
 
   useEffect(() => {
     if (!shouldDispatch || !parsedRoutes?.length) return;

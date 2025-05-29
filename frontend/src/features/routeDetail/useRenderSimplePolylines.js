@@ -11,14 +11,21 @@ export default function useRenderSimplePolylines(
   strokeWeight = 5
 ) {
   useEffect(() => {
-    if (!shouldRender || !map || !AMap || !parsedRoutes?.length) return;
+    if (
+      !shouldRender ||
+      !map ||
+      !AMap ||
+      !Array.isArray(parsedRoutes) ||
+      parsedRoutes.length === 0
+    ) {
+      return;
+    }
 
     if (polylineRef.current.length > 0) {
       polylineRef.current.forEach(p => map.remove(p));
       polylineRef.current = [];
     }
 
-    console.log(`simple parsedRoutes`, parsedRoutes);
     const newPolylines = parsedRoutes
       .map((route, index) => {
         const coords = route.parsedRoutePolyline.polylinesForRenderRoutes;

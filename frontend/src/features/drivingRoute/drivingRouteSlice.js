@@ -47,6 +47,18 @@ const drivingRoute = createSlice({
     setDrivingSelectedRoute(state, action) {
       state.selectedRoute = action.payload;
     },
+    clearDrivingRoute: state => {
+      state.routesInfo = null;
+      state.routesPolylines = null;
+      state.routesCities = null;
+      state.routesInstructions = null;
+      state.routesNavigations = null;
+      state.routesOrientations = null;
+      state.routesRoadCities = null;
+      state.routesRoadDistance = null;
+      state.routesRoadStatus = null;
+      state.selectedRoute = 0;
+    },
   },
 });
 
@@ -61,6 +73,7 @@ export const {
   setRoutesRoadDistance,
   setRoutesRoadStatus,
   setDrivingSelectedRoute,
+  clearDrivingRoute,
 } = drivingRoute.actions;
 
 export default drivingRoute.reducer;

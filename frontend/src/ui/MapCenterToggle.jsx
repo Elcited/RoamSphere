@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import styled from "styled-components";
 import Switch from "@mui/material/Switch";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,8 +11,8 @@ const Container = styled.div`
   background-color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: absolute;
-  top: 5.5rem;
-  left: 55rem;
+  top: 6rem;
+  left: 75rem;
   z-index: 1000;
   display: flex;
   justify-content: center;

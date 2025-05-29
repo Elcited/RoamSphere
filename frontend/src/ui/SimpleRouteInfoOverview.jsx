@@ -7,9 +7,23 @@ const RouteInfoOverview = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  color: #555;
 `;
 
-const RouteInfoOverviewItem = styled.div``;
+const RouteInfoOverviewItem = styled.div`
+  display: flex;
+  gap: 2.4rem;
+`;
+
+const TimeAndDistanceContainer = styled.div`
+  display: flex;
+  gap: 4.8rem;
+`;
+
+const TimeAndDistanceBox = styled.h2`
+  color: #555;
+  font-weight: 600;
+`;
 
 function SimpleRouteInfoOverview({ routeInfo, routeWalkTypes }) {
   const { distance, duration } = routeInfo;
@@ -19,11 +33,10 @@ function SimpleRouteInfoOverview({ routeInfo, routeWalkTypes }) {
     <div>
       <RouteInfoOverview>
         <RouteInfoOverviewItem>
-          <h1>
-            <span>{duration}</span>
-            {""}
-            <span>{distance}</span>
-          </h1>
+          <TimeAndDistanceContainer>
+            <TimeAndDistanceBox>{distance}</TimeAndDistanceBox>
+            <TimeAndDistanceBox>{duration}</TimeAndDistanceBox>
+          </TimeAndDistanceContainer>
         </RouteInfoOverviewItem>
         <RouteInfoOverviewItem>
           <SimpleRouteInfoOverviewTips

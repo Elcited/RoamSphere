@@ -1,65 +1,62 @@
 import styled from "styled-components";
-import MapSearchInput from "./MapSearchInput";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import { useDispatch, useSelector } from "react-redux";
-import { setIsSearchPanelExpand } from "../features/map/mapSlice";
+import { useSelector } from "react-redux";
+import { Outlet, useLocation } from "react-router-dom";
 
 const PanelWrapper = styled.div`
   position: absolute;
-  top: 0.75rem;
-  left: 8rem;
-  width: 30vw;
+  left: 7.2rem;
+  width: 40rem;
+  min-height: 100vh;
   background-color: white;
-  border-radius: 1rem;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
-  padding: 1.2rem;
-  z-index: 20;
+  z-index: 999;
   max-height: calc(100vh - 3.2rem);
-  overflow-y: scroll;
+
+  overflow-y: auto;
+
+  /* 自定义滚动条样式（Webkit 浏览器） */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f0f0f0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(200, 200, 200, 0.5);
+  }
+
+  /* Firefox 支持 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) #f0f0f0;
 `;
 
-const InputBox = styled.div`
-  padding: 0.9rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.2rem;
+const SearchResultBox = styled.div`
+  margin-top: ${({ pathname }) =>
+    pathname.includes("routes") ? "" : "6.5rem"};
 `;
 
-function MapSearchPanel({ children }) {
-  const { isSearchPanelExpand } = useSelector(store => store.map);
-  const dispatch = useDispatch();
+function MapSearchPanel() {
+  const { isSearchPanelExpanded } = useSelector(store => store.search);
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  if (!isSearchPanelExpanded) return null;
 
   return (
     <PanelWrapper>
-      <InputBox>
-        <MapSearchInput />
-      </InputBox>
-      <Accordion
-        expanded={isSearchPanelExpand}
-        onChange={() => dispatch(setIsSearchPanelExpand(!isSearchPanelExpand))}
-        sx={{
-          width: "100%",
-          mt: 1,
-          "& .MuiAccordionSummary-root": {
-            minHeight: "36px",
-            height: "36px",
-          },
-          "& .MuiAccordionSummary-content": {
-            margin: 0,
-          },
-          "& .MuiAccordionDetails-root": {
-            padding: isSearchPanelExpand ? "8px 16px" : 0,
-          },
-        }}
-      >
-        <AccordionSummary>展开搜索结果</AccordionSummary>
-        <AccordionDetails>
-          {isSearchPanelExpand ? children : null}
-        </AccordionDetails>
-      </Accordion>
+      {isSearchPanelExpanded && (
+        <SearchResultBox pathname={pathname}>
+          <Outlet />
+        </SearchResultBox>
+      )}
     </PanelWrapper>
   );
 }

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import DestinationListItem from "./DestinationListItem";
-import { useEffect, useState } from "react";
+import { getCityImage } from "../utils/getCityImage";
 
 const DestinationListContainer = styled.section`
   padding: 4.8rem 0 9.6rem 0;
@@ -26,30 +26,28 @@ const DestinationListBox = styled.div`
   gap: 1.2rem;
 `;
 
+const cities = [
+  { name: "北京", fileName: "beijing" },
+  { name: "上海", fileName: "shanghai" },
+  { name: "广州", fileName: "guangzhou" },
+  { name: "深圳", fileName: "shenzhen" },
+  { name: "长沙", fileName: "changsha" },
+  { name: "天津", fileName: "tianjin" },
+  { name: "郑州", fileName: "zhengzhou" },
+  { name: "武汉", fileName: "wuhan" },
+];
+
 function DestinationList() {
-  const [imageList, setImageList] = useState([]);
-
-  useEffect(() => {
-    const images = import.meta.glob("../assets/images/tours/*.{png,jpg}");
-
-    const loadImages = async () => {
-      const imgArray = await Promise.all(
-        Object.values(images).map(importFn =>
-          importFn().then(mod => mod.default)
-        )
-      );
-      setImageList(imgArray);
-    };
-
-    loadImages();
-  }, []);
-
   return (
     <DestinationListContainer id="DestinationList">
-      <DestinationListHeader>探索热门城市的景点</DestinationListHeader>
+      <DestinationListHeader>探索以下热门城市</DestinationListHeader>
       <DestinationListBox>
-        {imageList.map((src, index) => (
-          <DestinationListItem img={src} key={index} />
+        {cities.map((city, index) => (
+          <DestinationListItem
+            img={getCityImage(city.fileName)}
+            name={city.name}
+            key={index}
+          />
         ))}
       </DestinationListBox>
     </DestinationListContainer>

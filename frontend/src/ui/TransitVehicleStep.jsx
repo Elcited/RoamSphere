@@ -166,13 +166,24 @@ const StopItem = styled.div`
 `;
 
 function TransitVehicleStep({ data = {}, type = "bus" }) {
+  console.log(data);
   const [expanded, setExpanded] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const transitTimeRange = extractTimeRange(data);
   const transitTimeTip = extractBusTimeTips(data);
-  const currentData = data ? data[selectedIndex] : {};
-  const currentTip = transitTimeTip[selectedIndex];
+  const currentData =
+    type === "taxi" || type === "railway"
+      ? data
+      : data
+      ? data[selectedIndex]
+      : {};
+  const currentTip =
+    type === "taxi" || type === "railway"
+      ? transitTimeTip
+      : transitTimeTip[selectedIndex];
   const color = transitColorMap[type] || transitColorMap.default;
+  console.log("transitTimeRange", transitTimeRange);
+  console.log("transitTimeTip", transitTimeTip);
 
   const iconMap = {
     bus: <DirectionsBusIcon fontSize="large" />,
@@ -184,10 +195,9 @@ function TransitVehicleStep({ data = {}, type = "bus" }) {
 
   const departureStopName = currentData?.departureStop?.name || "未知起点";
   const arrivalStopName = currentData?.arrivalStop?.name || "未知终点";
-  const duration =
-    typeof currentData?.duration === "number"
-      ? formatDuration(currentData.duration)
-      : "加载中...";
+  const duration = currentData?.duration
+    ? formatDuration(currentData.duration)
+    : "加载中...";
   const viaStops = Array.isArray(currentData?.viaStops)
     ? currentData.viaStops
     : [];
@@ -208,11 +218,11 @@ function TransitVehicleStep({ data = {}, type = "bus" }) {
       <LeftTextBox>
         {iconMap[type] || iconMap["bus"]}
         <TimeLineBox>
-          {transitTimeRange.length > 0 || transitTimeRange ? (
+          {transitTimeRange && (type !== "taxi" || type !== "railway") ? (
             transitTimeRange.map((time, index) => (
               <TransitTimeRangeInfo
-                key={time}
-                time={time}
+                key={`${time.timeRange}-${index}`}
+                timeRange={time.timeRange}
                 index={index}
                 color={color}
                 selectedIndex={selectedIndex}
@@ -230,7 +240,7 @@ function TransitVehicleStep({ data = {}, type = "bus" }) {
           <BottomIcon />
         </BarColumn>
         <DotContentBox>
-          <StopName>{departureStopName}</StopName>
+          <StopName>{departureStopName || data.startName}</StopName>
           <StopInfo>
             <LineName tip={currentTip || ""} color={color}>
               {lineName}
@@ -239,7 +249,7 @@ function TransitVehicleStep({ data = {}, type = "bus" }) {
               <InfoText>
                 {duration}（{viaNumbers || "直达"}站）• {vehicleType}
               </InfoText>
-              <ExpandIcon expanded={expanded} />
+              {viaNumbers ? <ExpandIcon expanded={expanded} /> : null}
             </InfoTextWrapper>
             {viaStops.length > 0 && (
               <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -253,7 +263,7 @@ function TransitVehicleStep({ data = {}, type = "bus" }) {
               </Collapse>
             )}
           </StopInfo>
-          <StopName>{arrivalStopName}</StopName>
+          <StopName>{arrivalStopName || data.endName}</StopName>
         </DotContentBox>
       </RightBox>
     </BoxContainer>

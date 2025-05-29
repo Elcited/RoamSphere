@@ -17,6 +17,7 @@ const HeroSectionContainer = styled.section`
     url(${heroImage});
   background-size: cover;
   min-height: 100vh;
+  overflow: hidden;
 `;
 
 const StyledHero = styled.div`

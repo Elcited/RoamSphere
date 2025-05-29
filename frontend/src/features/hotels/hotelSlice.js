@@ -38,6 +38,15 @@ const hotelSlice = createSlice({
     setIsHotelRendered(state, action) {
       state.isHotelRendered = action.payload;
     },
+    clearHotelSlice(state) {
+      state.hotelCenterLocation = null;
+      state.hotelsArray = [];
+      state.hotelsCount = null;
+      state.singleHotel = null;
+      state.loading = false;
+      state.source = null;
+      state.isHotelRendered = false;
+    },
   },
 });
 
@@ -49,6 +58,7 @@ export const {
   setSingleHotel,
   setSource,
   setIsHotelRendered,
+  clearHotelSlice,
 } = hotelSlice.actions;
 
 export default hotelSlice.reducer;

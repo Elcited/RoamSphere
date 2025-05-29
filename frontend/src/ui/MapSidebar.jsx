@@ -7,7 +7,7 @@ import { setIsRoutesDrawerOpen } from "../features/routesDrawer/routesDrawerSlic
 import useQueryUpdater from "../hooks/useQueryUpdater";
 
 const SidebarContainer = styled.div`
-  padding: 1.2rem;
+  padding: 1.6rem;
   background-color: #f7f7f7;
   border-radius: 1.2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -54,16 +54,20 @@ function MapSidebar() {
     });
   };
 
+  const handleClickUserCenter = () => {
+    updateQueryAndNavigate({}, "/user/overview", {});
+  };
   return (
     <SidebarContainer>
       <Siderbar>
         <ButtonBox>
           <Button onClick={handleClickDetail}>路线详情</Button>
           <Button onClick={handleClickSearch}>查找路线</Button>
+          <Button onClick={handleClickUserCenter}>个人中心</Button>
         </ButtonBox>
-        <Drawer open={isRoutesDrawerOpen} anchor="left" variant="persistent">
+        {/* <Drawer open={isRoutesDrawerOpen} anchor="left" variant="persistent">
           {isRoutesPage && <Outlet />}
-        </Drawer>
+        </Drawer> */}
       </Siderbar>
     </SidebarContainer>
   );

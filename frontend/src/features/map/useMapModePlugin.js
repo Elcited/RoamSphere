@@ -18,10 +18,19 @@ export default function useMapModePlugin(
   positionType
 ) {
   const travelMode = useSelector(state => state.route.travelMode);
+  const { isAttractionRendered } = useSelector(store => store.attraction);
+  const { isHotelRendered } = useSelector(store => store.hotel);
+  const { isPositionRendered } = useSelector(store => store.position);
 
   useRenderRoutes(AMap, map, startLocation, endLocation, mapMode, travelMode);
-  useRenderHotels(AMap, map, hotelCoordinate, mapMode);
-  useRenderAttractions(AMap, map, attractionCoordinate, mapMode);
+  useRenderAttractions(
+    AMap,
+    map,
+    attractionCoordinate,
+    mapMode,
+    isAttractionRendered
+  );
+  useRenderHotels(AMap, map, hotelCoordinate, mapMode, isHotelRendered);
   useRenderPositions(
     AMap,
     map,
@@ -29,6 +38,7 @@ export default function useMapModePlugin(
     positionRegion,
     positionCoordinate,
     positionType,
-    mapMode
+    mapMode,
+    isPositionRendered
   );
 }

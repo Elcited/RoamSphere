@@ -27,7 +27,10 @@ const NavigationBox = styled.div`
 
 const NavigationBoxHeader = styled.div`
   font-size: 1.8rem;
-  padding: 0.4rem;
+  padding: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
 `;
 
 const NavigationBoxBody = styled.div`
@@ -35,20 +38,23 @@ const NavigationBoxBody = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  color: #666;
 `;
 
 const StartLocationBox = styled.div`
-  padding: 0.6rem;
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  color: #333;
 `;
 
 const EndLocationBox = styled.div`
-  padding: 0.6rem;
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  color: #333;
 `;
 
 const LocationName = styled.div`
@@ -150,11 +156,9 @@ function SimpleRouteInfoBody({
       <RouteInfoBody>
         <NavigationBox>
           <NavigationBoxHeader>
-            <div>
-              {startLocation.name}
-              <SimpleRouteInfoBodyIcon travelMode={travelMode} />{" "}
-              {endLocation.name}
-            </div>
+            <div>{startLocation.name}</div>
+            <SimpleRouteInfoBodyIcon travelMode={travelMode} />{" "}
+            <div>{endLocation.name}</div>
           </NavigationBoxHeader>
           <NavigationBoxBody>
             <StartLocationBox>

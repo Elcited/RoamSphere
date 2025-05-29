@@ -39,7 +39,6 @@ function TransitRouteInfoOverview({
   transitSteps,
 }) {
   const transitTypes = extractTransitTypes(transitSteps);
-  const transitTimetips = extractBusTimeTips(transitSteps);
   const transitBreakDownDurations = calculateTransitDurations(transitSteps);
 
   return (

@@ -42,7 +42,6 @@ function getUrl(
   city2
 ) {
   let url = null;
-  console.log(city1, city2);
 
   switch (mode) {
     case "driving":
@@ -182,10 +181,6 @@ function formatWalkingRouteResultDB(
 }
 
 function formatWalkingRouteResultRedis(routeDataFromAPI) {
-  console.log(
-    "routeDataFromAPI.route.paths",
-    routeDataFromAPI.route.paths.length
-  );
   const polylines = routeDataFromAPI.route.paths[0].steps.map(
     step => step.polyline
   );

@@ -41,6 +41,6 @@ const attractionSchema = new Schema({
   ],
 });
 
-const Attraction = model("attraction", attractionSchema);
+const Attraction = model("Attraction", attractionSchema);
 
 module.exports = Attraction;

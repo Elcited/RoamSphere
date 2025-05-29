@@ -34,7 +34,6 @@ const SingleLineText = styled.div`
 `;
 
 function SimpleRouteInfoHeader({ routeInfo }) {
-  const dispatch = useDispatch();
   const { updateQueryAndNavigate } = useQueryUpdater();
   const { startLocation, startInfo, endLocation, endInfo } = routeInfo;
 
@@ -58,12 +57,17 @@ function SimpleRouteInfoHeader({ routeInfo }) {
         </IconButton>
         <StartToEndBox>
           <SingleLineText>
-            从{startLocation.name}{" "}
-            {startInfo.regeocode.addressComponent.district}{" "}
+            从{startLocation.name}
+            {","}
+            {startInfo.regeocode.addressComponent.district}
+            {","}
             {startInfo.regeocode.addressComponent.city}
           </SingleLineText>
           <SingleLineText>
-            到{endLocation.name} {endInfo.regeocode.addressComponent.district}{" "}
+            到{endLocation.name}
+            {","}
+            {endInfo.regeocode.addressComponent.district}
+            {","}
             {endInfo.regeocode.addressComponent.city}
           </SingleLineText>
         </StartToEndBox>

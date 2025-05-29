@@ -1,8 +1,14 @@
 import styled from "styled-components";
 import useWalkTypeDescription from "../hooks/useWalkTypeDescription";
 
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 2.4rem;
+`;
+
 const StyledSpan = styled.span`
-  padding: 0.9rem;
+  display: inline-block;
 `;
 
 function SimpleRouteInfoOverviewTips({
@@ -15,14 +21,14 @@ function SimpleRouteInfoOverviewTips({
   return (
     <div>
       {trafficLights || totalTolls ? (
-        <>
+        <Wrapper>
           <StyledSpan>预计经过{trafficLights}个红绿灯</StyledSpan>
           <StyledSpan>路段总收费{totalTolls}</StyledSpan>
-        </>
+        </Wrapper>
       ) : (
-        <>
+        <Wrapper>
           <StyledSpan>{walkTypeDescription}</StyledSpan>
-        </>
+        </Wrapper>
       )}
     </div>
   );

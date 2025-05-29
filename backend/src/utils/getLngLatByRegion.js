@@ -1,3 +1,5 @@
+const API_REQUEST_KEY = process.env.API_REQUEST_KEY;
+
 async function getLngLatByRegion(regionName) {
   const url = `https://restapi.amap.com/v3/config/district?keywords=${encodeURIComponent(
     regionName

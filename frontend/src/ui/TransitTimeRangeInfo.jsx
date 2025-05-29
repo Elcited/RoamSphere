@@ -12,8 +12,8 @@ const TimeList = styled.div`
   align-items: center;
   padding: 0.5rem;
   border-radius: 0.6rem;
-  background-color: ${({ color, index, selectedIndex }) =>
-    index === selectedIndex ? color : "#ccc"};
+  background-color: ${({ $color, $index, $selectedIndex }) =>
+    $index === $selectedIndex ? $color : "#ccc"};
 `;
 
 const Line = styled.div`
@@ -23,21 +23,19 @@ const Line = styled.div`
 `;
 
 function TransitTimeRangeInfo({
-  time,
+  timeRange,
   index,
   color,
   selectedIndex,
   setSelectedIndex,
 }) {
-  const { timeRange, departure, arrival, fullText } = time;
-
   const handleClick = index => {
     setSelectedIndex(index);
   };
 
   return (
     <TimeGroup onClick={() => handleClick(index)}>
-      <TimeList color={color} index={index} selectedIndex={selectedIndex}>
+      <TimeList $color={color} $index={index} $selectedIndex={selectedIndex}>
         <Line>{timeRange}</Line>
       </TimeList>
     </TimeGroup>
